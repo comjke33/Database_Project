@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>영화 취향 매칭 사이트</title>
+  <style>
+    body {
+      font-family: Pretendard;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+        position: relative;
+        background-color: #906fa8;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+    }
+    header::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 0;
+        width: 100%;
+        height: 2px; /* 선 두께 */
+        border-top: 5px dashed #684078;
+    }
+    header::after {
+        content: '';
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+        height: 2px; /* 선 두께 */
+        border-bottom: 5px dashed #684078;
+    } 
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #b196c1;
+      padding: 10px 0;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 16px;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      padding: 20px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    .section h3 {
+      font-weight:normal;
+    }
+    .section em{
+      font-weight:bold;
+    }
+    .card {
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .btn-matching {
+    background-color: #906fa8; /* 파란색 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    }
+    .btn-community {
+    background-color: #906fa8; /* 파란색 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    }
+    .site-name {
+        font-size: 25px;
+        font-weight: bold;
+        color: white; /* 텍스트 내부 색상 */
+        text-shadow: 
+        2px 2px 5px rgba(0, 0, 0, 0.8); /* 흐릿한 검정 그림자 */
+    }
+    footer {
+      background-color: #906fa8;
+      color: #fff;
+      text-align: center;
+      padding: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="site-name">영화 취향 매칭 사이트</h1>
+    <p class="site-info">당신의 영화 취향에 딱 맞는 친구를 찾아보세요!</p>
+  </header>
+  <nav>
+    <a href="#recommendations">추천 영화</a>
+    <a href="#matching">취향 매칭</a>
+    <a href="#community" onclick="location.href='/community'; return false;">커뮤니티</a>
+    <a href="#profile" onclick="location.href='/profile'; return false;">내 프로필</a>
+  </nav>
+  <div class="container">
+    <section id="recommendations" class="section">
+      <h2>추천 영화</h2>
+      <div class="card">
+        <h3>어제 인기 영화: <em>{{dailyBoxOffice_movie[0][0]}}</em></h3>
+        <p>개봉일: {{dailyBoxOffice_movie[0][1]}}<br>누적관객수: {{dailyBoxOffice_movie[0][2]}}</p>
+      </div>
+      <div class="card">
+        <h3>이번 달 인기 영화: <em>{{weeklyBoxOffice_movie[0][0]}}</em></h3>
+        <p>개봉일: {{weeklyBoxOffice_movie[0][1]}}<br>누적관객수: {{weeklyBoxOffice_movie[0][2]}}</p>
+      </div>
+    </section>
+    <section id="matching" class="section">
+      <h2>취향 매칭</h2>
+      <p>지금 바로 간단한 설문을 통해 영화 취향이 맞는 사람을 찾아보세요!</p>
+      <button class="btn-matching" onclick="alert('매칭 설문이 곧 시작됩니다!')">매칭 시작하기</button>
+    </section>
+    <section id="communication" class="section">
+      <h2>커뮤니티</h2>
+      <p>영화에 대한 다양한 의견을 나누고 새로운 친구를 만나보세요.</p>
+      <button class="btn-community" onclick="location.href='/community'; return false;">커뮤니티 보기</button>
+    </section>
+  </div>
+  <footer>
+    <p>&copy; 2024 영화 취향 매칭 사이트. All rights reserved.</p>
+  </footer>
+</body>
+</html>
