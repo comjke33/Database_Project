@@ -55,15 +55,15 @@ def profile_page():
     user_id = session.get('user_id') 
     user_email = session.get('user_email')
     
+    user_data = [{"user_id": "comjke33", "user_gender":"여성", "user_age" : "21", "user_email":"comjke33@inu.ac.kr"}]
     # TODO
     # 내 영화 감상 리스트 가져오는 SQL
     
     # TODO
     # 내 영화 위시 리스트 가져오는 SQL
 
-    
     # if user_id and user_email:
-    return render_template('profile_page.html', user_id=user_id)
+    return render_template('profile_page.html', user_data=user_data)
     return "No user_id found. Please log in.", 401
 
 # # 개인정보 페이지
