@@ -8,28 +8,33 @@ from config import MOVIE_API_KEY
 BASE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList"
 
 
-
 conn = sqlite3.connect("project.db")
 cursor = conn.cursor()
 
 # 요청 파라미터 설정
 params = {
     "key": MOVIE_API_KEY,
-    "movieCd": ""        
+    "curPage": "251",
+    "movieCd": "",
+    "genreAlt": ""        
 }
 
 # JSON 형식으로 요청
 response = requests.get(f"{BASE_URL}.json", params=params)
 
-
-
 # 응답 데이터 확인
 if response.status_code == 200:
     data = response.json()
     movie_list = data.get("movieListResult", {}).get("movieList", [])
-    for movie in movie_list:            
-        cursor.execute("""INSERT INTO Movie (mID) VALUES (?)""", (movie.get('movieCd'),))
-        print(f"영화 데이터 삽입 성공: {movie.get('movieCd')}")
+    for movie in movie_list:
+        movie_cd = movie.get('movieCd')
+
+        #중복방지
+        #cursor.execute("SELECT COUNT(*) FROM Movie WHERE mID = ?", (movie_cd,))         
+        
+        #cursor.execute("""INSERT INTO Movie (mID) VALUES (?)""", (movie_cd,))
+        print(movie.get('movieCd'))
+        print(movie.get('genreAlt'))
 else:
     print(f"movidCd 추출 실패: {response.status_code}")
 
