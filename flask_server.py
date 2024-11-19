@@ -23,8 +23,7 @@ def login():
         session['user_id'] = user_id  # 세션에 user_id 저장
         if (SQL_getData.login(user_id, password)):
             return redirect('/home')
-        else:
-            return render_template('login_page.html')
+    return render_template('login_page.html')
 
 # TODO
 # 로그인 실패했을 때 
