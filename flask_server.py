@@ -18,8 +18,14 @@ def login():
     session["weeklyBoxOffice_movie"] = API_BoxOffice.getWeeklyBoxOffice()
 
     if request.method == 'POST':
+        '''
         user_id = request.form.get('user_id')
         password = request.form.get('password')
+        '''
+
+        user_id = 'zxccyh'
+        password = '1234'
+
         session['user_id'] = user_id  # 세션에 user_id 저장
         if (SQL_getData.login(user_id, password)):
             return redirect('/home')
@@ -65,7 +71,7 @@ def profile_page():
     # TODO
     # 내 영화 위시 리스트 가져오는 SQL
     user_wishlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
-
+    
     # if user_id and user_email:
     return render_template('profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
     return "No user_id found. Please log in.", 401 
@@ -103,11 +109,39 @@ def delete_watchedlist():
 
 @app.route('/heart-watched-movie', methods=['PATCH'])
 def heart_watched_movie():
-    
+    user_id = session.get('user_id')
     data = request.json
     movie_cd = data.get('movieCd')  # Unique movie code
-    hearted = data.get('heartWatchedListBtn')  # New hearted status (True or False)
+    hearted = data.get('hearted')  # New hearted status (True or False)
 
+    # TODO
+    # heart 업데이트 SQL 호출
+    SQL_getData.update_heart(user_id, movie_cd, hearted)
     return {'message': 'Movie deleted successfully'}, 200  
+
+@app.route('/add-wishlist', methods=['POST'])
+def add_wishlist():
+    movie = request.json  # Parse the JSON data from the request
+    movie_name = movie.get('movieNm')
+    movie_cd = movie.get('movieCd')
+    movie_genre = movie.get('genreAlt')
+    
+    # TODO
+    # 감상리스트에 추가하는 SQL 함수 호출
+
+    return {'message': 'Movie added successfully'}, 200
+
+@app.route('/delete-wish-movie', methods=['DELETE'])
+def delete_wishlist():
+    movie = request.json
+    movie_name = movie.get('movieNm')
+    movie_cd = movie.get('movieCd')
+    movie_genre = movie.get('genreAlt')
+
+    # TODO
+    # 감상리스트에서 삭제하는 SQL 함수 호출
+
+    return {'message': 'Movie deleted successfully'}, 200
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

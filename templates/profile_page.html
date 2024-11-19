@@ -107,7 +107,51 @@
             cursor: pointer; 
             white-space: nowrap;
         }
-        #add-to-list-btn{
+        #wishlist-search{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #wishlist-add{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #wishlist-delete{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #add-to-watchedlist-btn{
+            height: 10px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #add-to-wishlist-btn{
             height: 36px; 
             padding: 0 12px; 
             font-size: 14px; 
@@ -126,29 +170,6 @@
             justify-content: space-between; /* 중앙 정렬 */
             align-items: center; /* 세로 중앙 정렬 */
             gap: 10px; /* 요소 간 간격 */
-        }
-        #modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 500px;
-            width: 90%;
-        }
-        #close-modal {
-            float: right;
-            cursor: pointer;
-            font-size: 18px;
         }
        
     </style>
@@ -173,17 +194,35 @@
         <div id="movie-watchedlist" class="info">
             <!-- 영화 목록이 여기에 추가됩니다 -->
         </div> 
-        <div id="form-container" class="info hidden">
+        <div id="form-container-watchedlist" class="info hidden">
             <label for="movie-title">감상 리스트 추가</label>
             <div class="form-group"style="display: flex; gap: 8px;align-items: center;">
-                <input type="text" id="movie-title" placeholder="검색할 영화 제목" required style="height: 36px; padding: 0 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                <input type="text" id="movie-title-watchedlist" placeholder="검색할 영화 제목" required style="height: 36px; padding: 0 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
                 <button id="watchedlist-search"style=>검색</button>
             </div>
             <div id="search-watchedlist-results"></div>
         </div>
+        <div class="flex-container">
+            <p>위시 리스트</p>
+            <div>
+                <button id="wishlist-add"><i class="fas fa-plus"></i></button>
+                <button id="wishlist-delete"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+        <div id="movie-wishlist" class="info">
+            <!-- 영화 목록이 여기에 추가됩니다 -->
+        </div> 
+        <div id="form-container-wishlist" class="info hidden">
+            <label for="movie-title">위시 리스트 추가</label>
+            <div class="form-group"style="display: flex; gap: 8px;align-items: center;">
+                <input type="text" id="movie-title-wishlist" placeholder="검색할 영화 제목" required style="height: 36px; padding: 0 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                <button id="wishlist-search"style=>검색</button>
+            </div>
+            <div id="search-wishlist-results"></div>
+        </div>
     </section>
     <script>
-        // 요소 가져오기
+        // watchedlist
         const searchWatchedListResults = document.getElementById('search-watchedlist-results');
         const movieWatchedListElement = document.getElementById('movie-watchedlist'); // 감상 리스트 출력 영역
 
@@ -191,15 +230,25 @@
         const addWatchedListMovieButton = document.getElementById('watchedlist-add'); // 폼 토글 버튼
         const deleteWatchedListMovieButton = document.getElementById('watchedlist-delete'); // 폼 토글 버튼
 
-        const formContainer = document.getElementById('form-container'); // 폼 컨테이너
-        const movieTitleInput = document.getElementById('movie-title'); // 영화 제목 입력 필드
+        const formContainerWatchedList = document.getElementById('form-container-watchedlist'); // 폼 컨테이너
+        const movieTitleInputWatchedList = document.getElementById('movie-title-watchedlist'); // 영화 제목 입력 필드
+
+        // wishlist
+        const searchWishListResults = document.getElementById('search-wishlist-results');
+        const movieWishListElement = document.getElementById('movie-wishlist'); // 감상 리스트 출력 영역
+
+        const searchWishListMovieButton = document.getElementById('wishlist-search'); // "감상 리스트에 추가" 버튼
+        const addWishListMovieButton = document.getElementById('wishlist-add'); // 폼 토글 버튼
+        const deleteWishListMovieButton = document.getElementById('wishlist-delete'); // 폼 토글 버튼
+
+        const formContainerWishList = document.getElementById('form-container-wishlist'); // 폼 컨테이너
+        const movieTitleInputWishList = document.getElementById('movie-title-wishlist');
 
         // Flask 백엔드에서 받은 영화 목록
         const movieWatchedListFromBackend = {{ user_watchedlist | tojson }};
         const movieWishListFromBackend = {{ user_wishlist | tojson }};
         
         let deleteButtonsVisible = false;
-
 
         // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
         document.addEventListener('DOMContentLoaded', () => {
@@ -210,14 +259,29 @@
             }
         });
 
+        // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
+        document.addEventListener('DOMContentLoaded', () => {
+            if (movieWishListFromBackend.length > 0) {
+                movieWishListFromBackend.forEach(movie => addToWishMovieList(movie));
+            } else {
+                movieWishListElement.innerHTML = '<p>No movies in the list.</p>';
+            }
+        });
+
         // 폼 보이기/숨기기
         addWatchedListMovieButton.addEventListener('click', () => {
-            formContainer.classList.toggle('hidden'); // 폼 표시 여부 전환
+            formContainerWatchedList.classList.toggle('hidden'); // 폼 표시 여부 전환
         });
+
+         // 폼 보이기/숨기기
+        addWishListMovieButton.addEventListener('click', () => {
+            formContainerWishList.classList.toggle('hidden'); // 폼 표시 여부 전환
+        });
+
 
         // 감상 리스트에 영화 추가
         searchWatchedListMovieButton.addEventListener('click', async () => {
-            const query = movieTitleInput.value.trim();
+            const query = movieTitleInputWatchedList.value.trim();
             if (!query) {
                 alert('Please enter a movie title!');
                 return;
@@ -236,13 +300,13 @@
                         const movieItem = document.createElement('div');
                         movieItem.classList.add('movie-item');
                         movieItem.innerHTML = `
-                            <strong>${movie.movieNm}</strong> (${movie.openDt})
-                            <button class="add-to-list-btn">Add</button>
+                            <strong>${movie.movieNm}</strong> (${movie.genreAlt})
+                            <button class="add-to-watchedlist-btn">Add</button>
                         `;
                         searchWatchedListResults.appendChild(movieItem);
                         
                         // 영화 목록에 추가 버튼 클릭 이벤트
-                        const addToListButton = movieItem.querySelector('.add-to-list-btn');
+                        const addToListButton = movieItem.querySelector('.add-to-watchedlist-btn');
                         addToListButton.addEventListener('click', async () => {
                             // Check if the movie is already in the list
                             if (isMovieInList(movie, movieWatchedListFromBackend)) {
@@ -276,14 +340,90 @@
                             }
 
                             searchWatchedListResults.innerHTML = ''; // 검색 결과 제거
-                            movieTitleInput.value = ''; // 입력 필드 초기화
-                            formContainer.classList.toggle('hidden'); 
+                            movieTitleInputWatchedList.value = ''; // 입력 필드 초기화
+                            formContainerWatchedList.classList.toggle('hidden'); 
                             searchWatchedListMovieButton.style.display = 'block';
                         });
                     });
 
                 } else {
-                    searchResults.innerHTML = '<p>No results found.</p>';
+                    searchWatchedListResults.innerHTML = '<p>No results found.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                alert('Error fetching movie data.');
+            }
+        });
+
+        // 감상 리스트에 영화 추가
+        searchWishListMovieButton.addEventListener('click', async () => {
+            const query = movieTitleInputWishList.value.trim();
+            if (!query) {
+                alert('Please enter a movie title!');
+                return;
+            }
+
+            try {
+                // Python 백엔드로 검색 요청 보내기
+                const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                //console.log(data);
+                // 결과를 HTML로 렌더링
+                searchWishListResults.innerHTML = ''; // 이전 결과 초기화
+                if (data.length > 0) {
+                    data.forEach(movie => {
+                        const movieItem = document.createElement('div');
+                        movieItem.classList.add('movie-item');
+                        movieItem.innerHTML = `
+                            <strong>${movie.movieNm}</strong> (${movie.genreAlt})
+                            <button class="add-to-wishlist-btn">Add</button>
+                        `;
+                        searchWishListResults.appendChild(movieItem);
+                        
+                        // 영화 목록에 추가 버튼 클릭 이벤트
+                        const addToListButton = movieItem.querySelector('.add-to-wishlist-btn');
+                        addToListButton.addEventListener('click', async () => {
+                            // Check if the movie is already in the list
+                            if (isMovieInList(movie, movieWishListFromBackend)) {
+                                alert('This movie is already in your list!');
+                                return;
+                            }
+                            
+                            try {
+                                // Send a POST request to update the database
+                                const response = await fetch('/add-wishlist', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(movie), // Send the movie object to the backend
+                                });
+
+                                if (response.ok) {
+                                    // Update the frontend list only if the database update is successful
+                                    addToWishMovieList(movie);
+                                    movieWishListFromBackend.push(movie); // Update local copy of the list
+                                    // alert('Movie added successfully!');
+                                } else {
+                                    const errorData = await response.json();
+                                    console.error('Failed to add movie:', errorData.message);
+                                    alert('Failed to add movie. Please try again.');
+                                }
+                            } catch (error) {
+                                console.error('Error while adding movie to DB:', error);
+                                alert('An error occurred while adding the movie.');
+                            }
+
+                            searchWishListResults.innerHTML = ''; // 검색 결과 제거
+                            movieTitleInputWishList.value = ''; // 입력 필드 초기화
+                            formContainerWishList.classList.toggle('hidden'); 
+                            searchWishListMovieButton.style.display = 'block';
+                        });
+                    });
+
+                } else {
+                    searchWishListResults.innerHTML = '<p>No results found.</p>';
                 }
             } catch (error) {
                 console.error('Error fetching search results:', error);
@@ -301,6 +441,16 @@
             });
         });
 
+        // Toggle visibility of delete buttons
+        deleteWishListMovieButton.addEventListener('click', () => {
+            const deleteButtons = document.querySelectorAll('.delete-wishlist-btn');
+            deleteButtonsVisible = !deleteButtonsVisible; // Toggle state
+
+            deleteButtons.forEach(button => {
+                button.style.display = deleteButtonsVisible ? 'inline-block' : 'none';
+            });
+        });
+
         // 영화 목록에 추가 함수
         function addToWatchedMovieList(movie) {
             // console.log('Adding movie to list:', movie);
@@ -311,25 +461,54 @@
             movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
 
             movieListItem.innerHTML = `
-                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} (${movie.genre || '-'})</span>
-                <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
-                    <i class='fas fa-heart'>
-                </button>
-                <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;"></button>
+                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} : ${movie.genreAlt || '-'}</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                        <i class="far fa-heart"></i> <!-- 하트 아이콘 -->
+                    </button>
+                    <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                        <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                    </button>
+                </div>
             `;
             movieWatchedListElement.appendChild(movieListItem);
 
             // Add delete functionality to the button
             const heartWatchedlistButton = movieListItem.querySelector('.heart-watchedlist-btn');
-            const heartIcon = heartWatchedlistButton.querySelector('i');
             heartWatchedlistButton.addEventListener('click', async () => {
-                await heartMovieFromWatchedList(movie, heartIcon);
+                await heartMovieFromWatchedList(movie, heartWatchedlistButton);
             });
 
             // Add delete functionality to the button
             const deleteWatchedlistButton = movieListItem.querySelector('.delete-watchedlist-btn');
             deleteWatchedlistButton.addEventListener('click', async () => {
                 await deleteMovieFromWatchedList(movie, movieListItem);
+            });
+        }
+
+         // 영화 목록에 추가 함수
+        function addToWishMovieList(movie) {
+            // console.log('Adding movie to list:', movie);
+            const movieListItem = document.createElement('li');
+            movieListItem.style.display = 'flex'; // Use flexbox for alignment
+            movieListItem.style.justifyContent = 'space-between'; // Space out elements
+            movieListItem.style.alignItems = 'center'; // Vertically align elements
+            movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
+
+            movieListItem.innerHTML = `
+                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} ${movie.genreAlt || '-'}</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="delete-wishlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                        <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                    </button>
+                </div>
+            `;
+            movieWishListElement.appendChild(movieListItem);
+
+            // Add delete functionality to the button
+            const deleteWishlistButton = movieListItem.querySelector('.delete-wishlist-btn');
+            deleteWishlistButton.addEventListener('click', async () => {
+                await deleteMovieFromWishList(movie, movieListItem);
             });
         }
 
@@ -369,10 +548,47 @@
             }
         }
 
-        async function heartMovieFromWatchedList(movie, heartIcon) {
+        async function deleteMovieFromWishList(movie, movieListItem) {
+            if (!confirm(`Are you sure you want to delete "${movie.movieNm}" from your watched list?`)) {
+                return;
+            }
+
             try {
-                // Toggle hearted state (add or remove heart)
-                const isHearted = heartIcon.classList.contains('hearted');
+                const response = await fetch('/delete-wish-movie', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ movieCd: movie.movieCd }), // Send the movie code to identify the movie
+                });
+
+                if (response.ok) {
+                    // Remove from frontend list
+                    movieWishListElement.removeChild(movieListItem);
+
+                    // Remove from local list
+                    const index = movieWishListFromBackend.findIndex(m => m.movieCd === movie.movieCd);
+                    if (index > -1) {
+                        movieWishListFromBackend.splice(index, 1);
+                    }
+
+                    alert('Movie deleted successfully!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to delete movie:', errorData.message);
+                    alert('Failed to delete movie. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error while deleting movie from DB:', error);
+                alert('An error occurred while deleting the movie.');
+            }
+        }
+
+        async function heartMovieFromWatchedList(movie, heartButton) {
+            try {
+                // 현재 하트 상태 확인
+                const heartIcon = heartButton.querySelector('i'); // Heart icon inside the button
+                const isHearted = heartIcon.classList.contains('fas');
                 
                 // Update the backend with the new hearted status
                 const response = await fetch('/heart-watched-movie', {
@@ -387,9 +603,15 @@
                 });
 
                 if (response.ok) {
-                    // Toggle heart icon class to visually reflect the change
-                    heartIcon.classList.toggle('hearted');
-                    //heartIcon.innerHTML = "<i class='fas fa-heart'></i>";
+                    if (isHearted) {
+                        // 채워진 하트를 빈 하트로 변경
+                        heartIcon.classList.remove('fas'); // Remove filled heart class
+                        heartIcon.classList.add('far');    // Add unfilled heart class
+                    } else {
+                        // 빈 하트를 채워진 하트로 변경
+                        heartIcon.classList.remove('far'); // Remove unfilled heart class
+                        heartIcon.classList.add('fas');    // Add filled heart class
+                    }
                 } else {
                     const errorData = await response.json();
                     console.error('Failed to update hearted status:', errorData.message);
