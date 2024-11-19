@@ -44,6 +44,31 @@ def login(uID, password):
 
 ##### 내 프로필 #####
 
+#user 정보 반환
+def get_user_info(user_id):
+    user_data = []
+    print("-----")
+    try:
+        cursor.execute("""
+        SELECT uID, gender, age, email
+        FROM User
+        WHERE uID = ?;
+        """, (user_id,))
+        row = cursor.fetchall()
+        user_data.append({
+            "user_id": row[0],     # uId
+            "user_gender": row[1],      # gender
+            "user_age": row[2],      # age
+            "user_email": row[3]     # email
+        })
+        print("-----")
+        print(f"{user_data}")
+        print("-----")
+    except sqlite3.Error as e:
+        print(f"유저 데이터 읽기 오류: {e}")
+    
+    return user_data
+
 #user_id로 감상한 영화 리스트 조회
 def fetch_user_watched_movies(user_id):
     cursor.execute("""
@@ -69,6 +94,14 @@ def fetch_user_wishlist_movies(user_id):
 #감상한 영화 추가
 def add_watched_movie(uID, mID):
     try:
+        cursor.execute("SELECT 1 FROM Movie WHERE mID = ?",(mID,))
+        movie_exists = cursor.fetchone()
+
+        #영화가 없으면
+        if not movie_exists:
+            print(f"영화가 movie 테이블에 없음. 추가 중")
+            #add_to_movie(mID)
+        
         # WatchedMovies 테이블에 새로운 영화 삽입
         cursor.execute("""
         INSERT INTO WatchedMovies (uID, mID)
@@ -84,6 +117,14 @@ def add_watched_movie(uID, mID):
 #감상하고 싶은 영화 추가
 def add_wishlist_movie(uID, mID):
     try:
+        cursor.execute("SELECT 1 FROM Movie WHERE mID = ?",(mID,))
+        movie_exists = cursor.fetchone()
+
+        #영화가 없으면
+        if not movie_exists:
+            print(f"영화가 movie 테이블에 없음. 추가 중")
+            #add_to_movie(mID)
+
         # WishlistMovies 테이블에 새로운 영화 삽입
         cursor.execute("""
         INSERT INTO WishlistMovies (uID, mID)
@@ -133,23 +174,62 @@ def delete_wishlist_movie(uID, mID):
         print(f"Error deleting movie from wishlist: {e}")
 
 ##### 커뮤니티 페이지 - DB 연동 #####
-def get_db_connection():
-    conn = sqlite3.connect
-    conn.row_factory = sqlite3.Row
-    return conn
 
+#현재 페이지 목록 출력
 def community_page():
-    conn.row_factory = sqlite3.Row
-    conn = get
+    community_data = []
+    try:
+        cursor.execute("""
+        SELECT writer, moviename, title, content
+        FROM COMMUNITY
+        """)
+        rows = cursor.fetchall()
+
+        for row in rows:
+            community_data.append({
+                "author": row[0],     # writer
+                "movie": row[1],      # moviename
+                "title": row[2],      # title
+                "content": row[3]     # content
+            })
+    except sqlite3.Error as e:
+        print(f"커뮤니티 데이터 읽기 오류: {e}")
+    
+    return community_data
 
 #새로운 페이지 추가
-def add_community_page(title, content, moviename, author):
-    conn
+def add_new_post(title, content, moviename, writer):
+    try:
+        cursor.execute("""
+        INSERT INTO COMMUNITY (title, content, moviename, writer)
+        VALUES (?, ?, ?, ?)
+        """, (title, content, moviename, writer))
+        conn.commit()
+        print(f"DB에 추가: '{title}' by {writer}")
+    except sqlite3.Error as e:
+        print(f"DB에 추가 실패: {e}")
+
+# 페이지 삭제
+def delete_post(cID):
+    try:
+        cursor.execute("""
+        DELETE FROM COMMUNITY
+        WHERE cID = ?
+        """, (cID,))
+        conn.commit()  # 변경사항 저장
+        print(f"게시글 ID {cID} 삭제 완료")
+    except sqlite3.Error as e:
+        print(f"게시글 삭제 실패: {e}")
+
+##### DB에 영화 추가(API요청) #####
+def add_movie_to_DB():
+    return 0
 
 if __name__ == "__main__":
     fetch_user_watched_movies("zxccyh")
     fetch_user_wishlist_movies("zxccyh")
-    add_new_user("zxccyh", "1234", "남성", "26", "test@example.com")
+    ###add_new_user("zxccyh", "1234", "남성", "26", "test@example.com")
+    get_user_info("zxccyh")
 
 conn.close()
 
