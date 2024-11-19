@@ -85,18 +85,29 @@ def fetch_user_watched_movies(user_id):
             "content": row[3]     # content
         })
 
-    print(f"감상한 영화 {user_id}: {movies}")
+    print(f"감상한 영화 {user_id}: {rows[0][0]}")
+    return watched_list
 
 #user_id로 위시 리스트 조회
 def fetch_user_wishlist_movies(user_id):
+    wish_list = []
     cursor.execute("""
     SELECT m.mID 
     FROM WishlistMovies wl
     JOIN Movie m ON wl.mID = m.mID
     WHERE wl.uID = ?;
     """, (user_id,))
-    movies = cursor.fetchall()
-    print(f"위시 리스트 {user_id}: {movies}")
+    rows = cursor.fetchall()
+
+    for row in rows:
+        wish_list.append({
+        "movieCd": row[0],     # writer
+        "movieNm": row[1],      # moviename
+        "Genre": row[2],      # title
+        "content": row[3]     # content
+    })
+    print(f"위시 리스트 {user_id}: {rows[0][0]}")
+    return wish_list
 
 #감상한 영화 추가
 def add_watched_movie(uID, mID):
@@ -180,6 +191,59 @@ def delete_wishlist_movie(uID, mID):
     except sqlite3.Error as e:
         print(f"Error deleting movie from wishlist: {e}")
 
+#감상한 영화 하트 +1
+def press_heart(uID, mID):
+    genres = []
+    try:
+        cursor.execute("""
+        SELECT genre
+        FROM Movie
+        WHERE mID = ?
+        """,(mID))
+    
+        rows = cursor.fetchall()
+        genres = [row[0] for row in rows]
+        for genre in genres:
+            query = f"""
+            UPDATE UserGenreScore
+            SET {genre} = {genre} + 1
+            WHERE uID = ?;
+            """
+            cursor.execute(query, (uID))
+        conn.commit()
+        print(f"장르 점수 변경(증가) 완료")
+    except sqlite3.OperationalError as e:
+        print(f"SQL 에러 발생: {e}")
+    except sqlite3.Error as e:
+        print(f"데이터베이스 에러: {e}")
+
+#감상한 영화 하트 -1
+def press_heart(uID, mID):
+    genres = []
+    try:
+        cursor.execute("""
+        SELECT genre
+        FROM Movie
+        WHERE mID = ?
+        """,(mID))
+    
+        rows = cursor.fetchall()
+        genres = [row[0] for row in rows]
+        for genre in genres:
+            query = f"""
+            UPDATE UserGenreScore
+            SET {genre} = {genre} - 1
+            WHERE uID = ?;
+            """
+            cursor.execute(query, (uID))
+        conn.commit()
+        print(f"장르 점수 변경(감소) 완료")
+    except sqlite3.OperationalError as e:
+        print(f"SQL 에러 발생: {e}")
+    except sqlite3.Error as e:
+        print(f"데이터베이스 에러: {e}")
+
+
 ##### 커뮤니티 페이지 - DB 연동 -> 공지페이지 #####
 
 #현재 페이지 목록 출력
@@ -237,5 +301,6 @@ def add_movie_to_DB():
     #fetch_user_wishlist_movies("zxccyh")
     ###add_new_user("zxccyh", "1234", "남성", "26", "test@example.com")
     #get_user_info("zxccyh")
+    #add_new_user("admin","admin","남성","26","test1@example.com")
 
 #conn.close()
