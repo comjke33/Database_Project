@@ -58,7 +58,7 @@ def profile_page():
     user_data = [{"user_id": "comjke33", "user_gender":"여성", "user_age" : "21", "user_email":"comjke33@inu.ac.kr"}]
     # TODO
     # 내 영화 감상 리스트 가져오는 SQL
-    user_watchedlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
+    user_watchedlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "genre":"스릴러"}]
 
     # TODO
     # 내 영화 위시 리스트 가져오는 SQL
@@ -76,7 +76,7 @@ def search_movie():
     return data
 
 @app.route('/add-watchedlist', methods=['POST'])
-def add_wishlist():
+def add_watchedlist():
     movie = request.json  # Parse the JSON data from the request
     movie_name = movie.get('movieNm')
     movie_cd = movie.get('movieCd')
@@ -88,7 +88,7 @@ def add_wishlist():
     return {'message': 'Movie added successfully'}, 200
 
 @app.route('/delete-watched-movie', methods=['DELETE'])
-def delete_watched_movie():
+def delete_watchedlist():
     movie = request.json
     movie_name = movie.get('movieNm')
     movie_cd = movie.get('movieCd')
@@ -99,5 +99,13 @@ def delete_watched_movie():
 
     return {'message': 'Movie deleted successfully'}, 200
 
+@app.route('/heart-watched-movie', methods=['PATCH'])
+def heart_watched_movie():
+    
+    data = request.json
+    movie_cd = data.get('movieCd')  # Unique movie code
+    hearted = data.get('hearted')  # New hearted status (True or False)
+
+    return {'message': 'Movie deleted successfully'}, 200  
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

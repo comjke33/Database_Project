@@ -290,10 +290,10 @@
                 alert('Error fetching movie data.');
             }
         });
-        
+
         // Toggle visibility of delete buttons
         deleteWatchedListMovieButton.addEventListener('click', () => {
-            const deleteButtons = document.querySelectorAll('.delete-movie-btn');
+            const deleteButtons = document.querySelectorAll('.delete-watchedlist-btn');
             deleteButtonsVisible = !deleteButtonsVisible; // Toggle state
 
             deleteButtons.forEach(button => {
@@ -311,16 +311,24 @@
             movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
 
             movieListItem.innerHTML = `
-                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} (${movie.openDt || '-'})</span>
-                <button class="delete-movie-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
-                    <i class="fas fa-trash-alt"></i>
+                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} (${movie.genre || '-'})</span>
+                <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                    <i class='fas fa-heart'>
                 </button>
+                <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;"></button>
             `;
             movieWatchedListElement.appendChild(movieListItem);
 
             // Add delete functionality to the button
-            const deleteButton = movieListItem.querySelector('.delete-movie-btn');
-            deleteButton.addEventListener('click', async () => {
+            const heartWatchedlistButton = movieListItem.querySelector('.heart-watchedlist-btn');
+            const heartIcon = heartWatchedlistButton.querySelector('i');
+            heartWatchedlistButton.addEventListener('click', async () => {
+                await heartMovieFromWatchedList(movie, heartIcon);
+            });
+
+            // Add delete functionality to the button
+            const deleteWatchedlistButton = movieListItem.querySelector('.delete-watchedlist-btn');
+            deleteWatchedlistButton.addEventListener('click', async () => {
                 await deleteMovieFromWatchedList(movie, movieListItem);
             });
         }
@@ -361,10 +369,58 @@
             }
         }
 
+        async function heartMovieFromWatchedList(movie, heartIcon) {
+            try {
+                // Toggle hearted state (add or remove heart)
+                const isHearted = heartIcon.classList.contains('hearted');
+                
+                // Update the backend with the new hearted status
+                const response = await fetch('/heart-watched-movie', {
+                    method: 'PATCH', // Use PATCH to update a specific field
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        movieCd: movie.movieCd, 
+                        hearted: !isHearted // Toggle the heart status
+                    }),
+                });
+
+                if (response.ok) {
+                    // Toggle heart icon class to visually reflect the change
+                    heartIcon.classList.toggle('hearted');
+                    //heartIcon.innerHTML = "<i class='fas fa-heart'></i>";
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to update hearted status:', errorData.message);
+                    alert('Failed to update hearted status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error while updating hearted status:', error);
+                alert('An error occurred while updating the hearted status.');
+            }
+        }
 
         function isMovieInList(movie, movieList) {
             return movieList.some(existingMovie => existingMovie.movieCd === movie.movieCd);
         }
+
+        // Function to toggle heart icon
+        function toggleHeart(heartIcon) {
+            const isHearted = heartIcon.classList.contains('hearted'); // Check current state
+
+            if (isHearted) {
+                // Change to unfilled heart
+                heartIcon.innerHTML = "<i class='far fa-heart'></i>"; // Regular heart (unfilled)
+                heartIcon.classList.remove('hearted');
+            } else {
+                // Change to filled heart
+                heartIcon.innerHTML = "<i class='fas fa-heart'></i>"; // Solid heart (filled)
+                heartIcon.classList.add('hearted');
+            }
+        }
+
+        
     </script>
 </body>
 </html>
