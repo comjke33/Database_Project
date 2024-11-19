@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, request, session
 from config import APP_KEY
 
-import API_BoxOffice, SQL_getData
+import API_BoxOffice, SQL_getData, API_MovieInfo
 
 app = Flask(__name__) 
 app.secret_key = APP_KEY
@@ -58,32 +58,46 @@ def profile_page():
     user_data = [{"user_id": "comjke33", "user_gender":"여성", "user_age" : "21", "user_email":"comjke33@inu.ac.kr"}]
     # TODO
     # 내 영화 감상 리스트 가져오는 SQL
-    
+    user_watchedlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
+
     # TODO
     # 내 영화 위시 리스트 가져오는 SQL
+    user_wishlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
 
     # if user_id and user_email:
-    return render_template('profile_page.html', user_data=user_data)
-    return "No user_id found. Please log in.", 401
+    return render_template('profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
+    return "No user_id found. Please log in.", 401 
 
-# # 개인정보 페이지
-# @app.route('/profile/<string:id>')
-# def profile_page():
-#     # TODO
-#     # 사용자의 id 및 이메일 저장
-#     user_id = ""
-#     user_email = ""
+# 영화 검색 API 엔드포인트
+@app.route('/search', methods=['GET'])
+def search_movie():
+    query = request.args.get('query')
+    data = API_MovieInfo.getMovieInfo(query)
+    return data
+
+@app.route('/add-watchedlist', methods=['POST'])
+def add_wishlist():
+    movie = request.json  # Parse the JSON data from the request
+    movie_name = movie.get('movieNm')
+    movie_cd = movie.get('movieCd')
+    movie_genre = movie.get('genreAlt')
     
-#     # TODO
-#     # 사용자의 영화 감상 리스트 가져오는 SQL
+    # TODO
+    # 감상리스트에 추가하는 SQL 함수 호출
 
-#     # TODO
-#     # 사용자의 영화 위시 리스트 가져오는 SQL
+    return {'message': 'Movie added successfully'}, 200
 
-    
-#     if user_id and user_email:
-#         return render_template('profile_page.html', user_id=user_id)
-#     return "No user_id found. Please log in.", 401
+@app.route('/delete-watched-movie', methods=['DELETE'])
+def delete_watched_movie():
+    movie = request.json
+    movie_name = movie.get('movieNm')
+    movie_cd = movie.get('movieCd')
+    movie_genre = movie.get('genreAlt')
+
+    # TODO
+    # 감상리스트에서 삭제하는 SQL 함수 호출
+
+    return {'message': 'Movie deleted successfully'}, 200
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

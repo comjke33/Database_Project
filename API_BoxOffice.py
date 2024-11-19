@@ -73,3 +73,5 @@ def getWeeklyBoxOffice():
     else:
         print(f"주간 박스오피스 요청 실패: {response.status_code}")
         return -1
+    
+

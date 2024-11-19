@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <title>내 프로필</title>
     <style>
         body { 
@@ -27,8 +28,7 @@
         }
         h2 {
             text-align: center;
-            text-shadow: 
-            2px 2px 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             font-weight: bold;
             color: #fff;
             margin-bottom: 1.5rem;
@@ -41,6 +41,116 @@
             margin-bottom: 1.5rem;
             transition: transform 0.2s, box-shadow 0.2s;
         }
+        .movie-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 0.7rem 1.5rem;
+            background-color: #5b3a8d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #432865;
+        }
+        #watchedlist-search{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #watchedlist-add{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #watchedlist-delete{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        #add-to-list-btn{
+            height: 36px; 
+            padding: 0 12px; 
+            font-size: 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: #5b3a8d; 
+            color: white; 
+            cursor: pointer; 
+            white-space: nowrap;
+        }
+        .hidden {
+            display: none;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between; /* 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            gap: 10px; /* 요소 간 간격 */
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+            width: 90%;
+        }
+        #close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 18px;
+        }
+       
     </style>
 </head>
 <body>
@@ -53,15 +163,208 @@
             <p><strong>나이: </strong>{{user_data[0].user_age}}</p>
             <p><strong>Email: </strong>{{user_data[0].user_email}}</p>
         </div>
-        <p>감상리스트</p>
-        <div class="info">
-            
+        <div class="flex-container">
+            <p>감상 리스트</p>
+            <div>
+                <button id="watchedlist-add"><i class="fas fa-plus"></i></button>
+                <button id="watchedlist-delete"><i class="fas fa-minus"></i></button>
+            </div>
         </div>
-        <p>위시리스트</p>
-        <div class="info">
-           
+        <div id="movie-watchedlist" class="info">
+            <!-- 영화 목록이 여기에 추가됩니다 -->
+        </div> 
+        <div id="form-container" class="info hidden">
+            <label for="movie-title">감상 리스트 추가</label>
+            <div class="form-group"style="display: flex; gap: 8px;align-items: center;">
+                <input type="text" id="movie-title" placeholder="검색할 영화 제목" required style="height: 36px; padding: 0 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                <button id="watchedlist-search"style=>검색</button>
+            </div>
+            <div id="search-watchedlist-results"></div>
         </div>
     </section>
-    
+    <script>
+        // 요소 가져오기
+        const searchWatchedListResults = document.getElementById('search-watchedlist-results');
+        const movieWatchedListElement = document.getElementById('movie-watchedlist'); // 감상 리스트 출력 영역
+
+        const searchWatchedListMovieButton = document.getElementById('watchedlist-search'); // "감상 리스트에 추가" 버튼
+        const addWatchedListMovieButton = document.getElementById('watchedlist-add'); // 폼 토글 버튼
+        const deleteWatchedListMovieButton = document.getElementById('watchedlist-delete'); // 폼 토글 버튼
+
+        const formContainer = document.getElementById('form-container'); // 폼 컨테이너
+        const movieTitleInput = document.getElementById('movie-title'); // 영화 제목 입력 필드
+
+        // Flask 백엔드에서 받은 영화 목록
+        const movieWatchedListFromBackend = {{ user_watchedlist | tojson }};
+        const movieWishListFromBackend = {{ user_wishlist | tojson }};
+        
+        let deleteButtonsVisible = false;
+
+
+        // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
+        document.addEventListener('DOMContentLoaded', () => {
+            if (movieWatchedListFromBackend.length > 0) {
+                movieWatchedListFromBackend.forEach(movie => addToWatchedMovieList(movie));
+            } else {
+                movieWatchedListElement.innerHTML = '<p>No movies in the list.</p>';
+            }
+        });
+
+        // 폼 보이기/숨기기
+        addWatchedListMovieButton.addEventListener('click', () => {
+            formContainer.classList.toggle('hidden'); // 폼 표시 여부 전환
+        });
+
+        // 감상 리스트에 영화 추가
+        searchWatchedListMovieButton.addEventListener('click', async () => {
+            const query = movieTitleInput.value.trim();
+            if (!query) {
+                alert('Please enter a movie title!');
+                return;
+            }
+
+            try {
+                // Python 백엔드로 검색 요청 보내기
+                const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                //console.log(data);
+                // 결과를 HTML로 렌더링
+                searchWatchedListResults.innerHTML = ''; // 이전 결과 초기화
+                if (data.length > 0) {
+                    data.forEach(movie => {
+                        const movieItem = document.createElement('div');
+                        movieItem.classList.add('movie-item');
+                        movieItem.innerHTML = `
+                            <strong>${movie.movieNm}</strong> (${movie.openDt})
+                            <button class="add-to-list-btn">Add</button>
+                        `;
+                        searchWatchedListResults.appendChild(movieItem);
+                        
+                        // 영화 목록에 추가 버튼 클릭 이벤트
+                        const addToListButton = movieItem.querySelector('.add-to-list-btn');
+                        addToListButton.addEventListener('click', async () => {
+                            // Check if the movie is already in the list
+                            if (isMovieInList(movie, movieWatchedListFromBackend)) {
+                                alert('This movie is already in your list!');
+                                return;
+                            }
+                            
+                            try {
+                                // Send a POST request to update the database
+                                const response = await fetch('/add-watchedlist', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(movie), // Send the movie object to the backend
+                                });
+
+                                if (response.ok) {
+                                    // Update the frontend list only if the database update is successful
+                                    addToWatchedMovieList(movie);
+                                    movieWatchedListFromBackend.push(movie); // Update local copy of the list
+                                    // alert('Movie added successfully!');
+                                } else {
+                                    const errorData = await response.json();
+                                    console.error('Failed to add movie:', errorData.message);
+                                    alert('Failed to add movie. Please try again.');
+                                }
+                            } catch (error) {
+                                console.error('Error while adding movie to DB:', error);
+                                alert('An error occurred while adding the movie.');
+                            }
+
+                            searchWatchedListResults.innerHTML = ''; // 검색 결과 제거
+                            movieTitleInput.value = ''; // 입력 필드 초기화
+                            formContainer.classList.toggle('hidden'); 
+                            searchWatchedListMovieButton.style.display = 'block';
+                        });
+                    });
+
+                } else {
+                    searchResults.innerHTML = '<p>No results found.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                alert('Error fetching movie data.');
+            }
+        });
+        
+        // Toggle visibility of delete buttons
+        deleteWatchedListMovieButton.addEventListener('click', () => {
+            const deleteButtons = document.querySelectorAll('.delete-movie-btn');
+            deleteButtonsVisible = !deleteButtonsVisible; // Toggle state
+
+            deleteButtons.forEach(button => {
+                button.style.display = deleteButtonsVisible ? 'inline-block' : 'none';
+            });
+        });
+
+        // 영화 목록에 추가 함수
+        function addToWatchedMovieList(movie) {
+            // console.log('Adding movie to list:', movie);
+            const movieListItem = document.createElement('li');
+            movieListItem.style.display = 'flex'; // Use flexbox for alignment
+            movieListItem.style.justifyContent = 'space-between'; // Space out elements
+            movieListItem.style.alignItems = 'center'; // Vertically align elements
+            movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
+
+            movieListItem.innerHTML = `
+                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} (${movie.openDt || '-'})</span>
+                <button class="delete-movie-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            movieWatchedListElement.appendChild(movieListItem);
+
+            // Add delete functionality to the button
+            const deleteButton = movieListItem.querySelector('.delete-movie-btn');
+            deleteButton.addEventListener('click', async () => {
+                await deleteMovieFromWatchedList(movie, movieListItem);
+            });
+        }
+
+        async function deleteMovieFromWatchedList(movie, movieListItem) {
+            if (!confirm(`Are you sure you want to delete "${movie.movieNm}" from your watched list?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/delete-watched-movie', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ movieCd: movie.movieCd }), // Send the movie code to identify the movie
+                });
+
+                if (response.ok) {
+                    // Remove from frontend list
+                    movieWatchedListElement.removeChild(movieListItem);
+
+                    // Remove from local list
+                    const index = movieWatchedListFromBackend.findIndex(m => m.movieCd === movie.movieCd);
+                    if (index > -1) {
+                        movieWatchedListFromBackend.splice(index, 1);
+                    }
+
+                    alert('Movie deleted successfully!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to delete movie:', errorData.message);
+                    alert('Failed to delete movie. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error while deleting movie from DB:', error);
+                alert('An error occurred while deleting the movie.');
+            }
+        }
+
+
+        function isMovieInList(movie, movieList) {
+            return movieList.some(existingMovie => existingMovie.movieCd === movie.movieCd);
+        }
+    </script>
 </body>
 </html>
