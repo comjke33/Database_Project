@@ -1,7 +1,7 @@
 import sqlite3
 
 db_name = "project.db"
-conn = sqlite3.connect(db_name)
+conn = sqlite3.connect(db_name, check_same_thread=False)
 cursor = conn.cursor()
 
 ##### 로그인 페이지 #####
@@ -47,7 +47,6 @@ def login(uID, password):
 #user 정보 반환
 def get_user_info(user_id):
     user_data = []
-    print("-----")
     try:
         cursor.execute("""
         SELECT uID, gender, age, email
@@ -55,15 +54,13 @@ def get_user_info(user_id):
         WHERE uID = ?;
         """, (user_id,))
         row = cursor.fetchall()
+        row = row[0]
         user_data.append({
             "user_id": row[0],     # uId
             "user_gender": row[1],      # gender
             "user_age": row[2],      # age
             "user_email": row[3]     # email
         })
-        print("-----")
-        print(f"{user_data}")
-        print("-----")
     except sqlite3.Error as e:
         print(f"유저 데이터 읽기 오류: {e}")
     
@@ -71,13 +68,23 @@ def get_user_info(user_id):
 
 #user_id로 감상한 영화 리스트 조회
 def fetch_user_watched_movies(user_id):
+    watched_list = []
     cursor.execute("""
-    SELECT m.mID 
+    SELECT m.mID, mName, Genre
     FROM WatchedMovies wm
     JOIN Movie m ON wm.mID = m.mID
     WHERE wm.uID = ?;
     """, (user_id,))
-    movies = cursor.fetchall()
+    rows = cursor.fetchall()
+
+    for row in rows:
+        watched_list.append({
+            "movieCd": row[0],     # writer
+            "movieNm": row[1],      # moviename
+            "Genre": row[2],      # title
+            "content": row[3]     # content
+        })
+
     print(f"감상한 영화 {user_id}: {movies}")
 
 #user_id로 위시 리스트 조회
@@ -173,7 +180,7 @@ def delete_wishlist_movie(uID, mID):
     except sqlite3.Error as e:
         print(f"Error deleting movie from wishlist: {e}")
 
-##### 커뮤니티 페이지 - DB 연동 #####
+##### 커뮤니티 페이지 - DB 연동 -> 공지페이지 #####
 
 #현재 페이지 목록 출력
 def community_page():
@@ -225,11 +232,10 @@ def delete_post(cID):
 def add_movie_to_DB():
     return 0
 
-if __name__ == "__main__":
-    fetch_user_watched_movies("zxccyh")
-    fetch_user_wishlist_movies("zxccyh")
+#if __name__ == "__main__":
+    #fetch_user_watched_movies("zxccyh")
+    #fetch_user_wishlist_movies("zxccyh")
     ###add_new_user("zxccyh", "1234", "남성", "26", "test@example.com")
-    get_user_info("zxccyh")
+    #get_user_info("zxccyh")
 
-conn.close()
-
+#conn.close()
