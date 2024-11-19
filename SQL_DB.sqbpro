@@ -1,79 +1,175 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/zxccy/OneDrive/바탕 화면/3학년 2학기/데이터베이스/프로젝트/project.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1486"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="sqlite_sequence" custom_title="0" dock_id="1" table="4,15:mainsqlite_sequence"/><dock_state state="000000ff00000000fd00000001000000020000023400000217fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000000002340000015100ffffff000002340000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Movie" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="33"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">-- User 테이블
-
-CREATE TABLE User (
-
-    uID TEXT PRIMARY KEY,
-
-    Password TEXT NOT NULL,
-
-    gender TEXT CHECK(gender IN ('남성', '여성')) NOT NULL,
-
-    age INTEGER CHECK(age &gt; 0),
-
-    email TEXT UNIQUE NOT NULL
-
-);
-
-
-
--- Movie 테이블
-
-CREATE TABLE Movie (
-
-    mID TEXT PRIMARY KEY
-
-);
-
-
-
--- WatchedMovies 테이블 (감상한 영화)
-
-CREATE TABLE WatchedMovies (
-
-    uID TEXT NOT NULL,
-
-    mID TEXT NOT NULL,
-
-    PRIMARY KEY (uID, mID),
-
-    FOREIGN KEY (uID) REFERENCES User(uID) ON DELETE CASCADE,
-
-    FOREIGN KEY (mID) REFERENCES Movie(mID) ON DELETE CASCADE
-
-);
-
-
-
--- WishlistMovies 테이블 (보고 싶은 영화)
-
-CREATE TABLE WishlistMovies (
-
-    uID TEXT NOT NULL,
-
-    mID TEXT NOT NULL,
-
-    PRIMARY KEY (uID, mID),
-
-    FOREIGN KEY (uID) REFERENCES User(uID) ON DELETE CASCADE,
-
-    FOREIGN KEY (mID) REFERENCES Movie(mID) ON DELETE CASCADE
-
-);
-
-
-
-CREATE TABLE FriendList (
-
-    uID TEXT NOT NULL,           
-
-    friendID TEXT NOT NULL,      
-
-    PRIMARY KEY (uID, friendID), 
-
-    FOREIGN KEY (uID) REFERENCES User(uID), 
-
-    FOREIGN KEY (friendID) REFERENCES User(uID)
-
-);
-
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:\Users\zxccy\OneDrive\바탕 화면\3학년 2학기\데이터베이스\Project\Database_Project\project.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="5066"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="0" parent="0"/><expanded_item id="4" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="COMMUNITY" custom_title="0" dock_id="1" table="4,9:mainCOMMUNITY"/><dock_state state="000000ff00000000fd0000000100000002000001d0000002affc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000000001d00000015100ffffff000001d00000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="COMMUNITY" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="29"/><column index="2" value="32"/><column index="3" value="56"/><column index="4" value="81"/><column index="5" value="47"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="FriendList" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="31"/><column index="2" value="61"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Movie" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="33"/><column index="2" value="58"/><column index="3" value="47"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="User" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="29"/><column index="2" value="73"/><column index="3" value="53"/><column index="4" value="32"/><column index="5" value="44"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="UserGenreScore" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="72"/><column index="2" value="71"/><column index="3" value="49"/><column index="4" value="101"/><column index="5" value="48"/><column index="6" value="60"/><column index="7" value="50"/><column index="8" value="29"/><column index="9" value="47"/><column index="10" value="45"/><column index="11" value="72"/><column index="12" value="72"/><column index="13" value="20"/><column index="14" value="56"/><column index="15" value="61"/><column index="16" value="93"/><column index="17" value="48"/><column index="18" value="69"/><column index="19" value="32"/><column index="20" value="78"/><column index="21" value="60"/><column index="22" value="60"/><column index="23" value="41"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="WatchedMovies" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="31"/><column index="2" value="34"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="WishlistMovies" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="31"/><column index="2" value="34"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="sqlite_sequence" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="44"/><column index="2" value="32"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">CREATE TABLE User (
+
+    uID TEXT PRIMARY KEY,
+
+    Password TEXT NOT NULL,
+
+    gender TEXT CHECK(gender IN ('남성', '여성')) NOT NULL,
+
+    age INTEGER CHECK(age &gt; 0),
+
+    email TEXT UNIQUE NOT NULL
+
+);
+
+
+
+-- Movie 테이블
+
+CREATE TABLE Movie (
+
+    mID TEXT PRIMARY KEY,
+	
+	mName TEXT,
+	
+	Genre TEXT
+
+);
+
+
+
+-- WatchedMovies 테이블 (감상한 영화)
+
+CREATE TABLE WatchedMovies (
+
+    uID TEXT NOT NULL,
+
+    mID TEXT NOT NULL,
+
+    PRIMARY KEY (uID, mID),
+
+    FOREIGN KEY (uID) REFERENCES User(uID) ON DELETE CASCADE,
+
+    FOREIGN KEY (mID) REFERENCES Movie(mID) ON DELETE CASCADE
+
+);
+
+
+
+-- WishlistMovies 테이블 (보고 싶은 영화)
+
+CREATE TABLE WishlistMovies (
+
+    uID TEXT NOT NULL,
+
+    mID TEXT NOT NULL,
+
+    PRIMARY KEY (uID, mID),
+
+    FOREIGN KEY (uID) REFERENCES User(uID) ON DELETE CASCADE,
+
+    FOREIGN KEY (mID) REFERENCES Movie(mID) ON DELETE CASCADE
+
+);
+
+
+
+CREATE TABLE FriendList (
+
+    uID TEXT NOT NULL,           
+
+    friendID TEXT NOT NULL,      
+
+    PRIMARY KEY (uID, friendID), 
+
+    FOREIGN KEY (uID) REFERENCES User(uID ) ON DELETE CASCADE, 
+
+    FOREIGN KEY (friendID) REFERENCES User(uID) ON DELETE CASCADE
+
+);
+
+CREATE TABLE UserGenreScore (
+		
+	---랜덤뽑기용 번호
+	u_number INTEGER PRIMARY KEY AUTOINCREMENT,
+	
+	---유저이름
+	username TEXT,
+
+	---드라마
+	drama INTEGER,
+
+	---멜로/로맨스
+	meloRomance INTEGER,
+
+	---액션
+	action INTEGER,
+
+	---코미디
+	comedy INTEGER,
+
+	---스릴러
+	thriller INTEGER,
+
+	---성인물(에로)
+	ero INTEGER,
+
+	---공포
+	horror INTEGER,
+
+	---범죄
+	crime INTEGER,
+
+	---애니메이션
+	animation INTEGER,
+
+	---어드벤처
+	adventure INTEGER,
+
+	---SF
+	sf INTEGER,
+
+	---판타지
+	fantasy INTEGER,
+
+	---미스터리
+	mystery INTEGER,
+
+	---다큐멘터리
+	documentary INTEGER,
+
+	---가족
+	family INTEGER,
+
+	---사극
+	historical INTEGER,
+
+	---전쟁
+	war INTEGER,
+
+	---공연
+	performing INTEGER,
+
+	---뮤지컬
+	musical INTEGER,
+
+	---서부극
+	western INTEGER,
+
+	---기타
+	other INTEGER,
+
+	FOREIGN KEY (username) REFERENCES User(uID) ON DELETE CASCADE
+);
+
+CREATE TABLE COMMUNITY (
+	cID INTEGER PRIMARY KEY AUTOINCREMENT,
+
+	---제목
+	title TEXT,
+
+	---내용
+	content TEXT,
+
+	---영화제목
+	moviename TEXT,
+
+	---작성자
+	writer TEXT,
+	
+	FOREIGN KEY (moviename) REFERENCES Movie(mName),
+	
+	FOREIGN KEY (writer) REFERENCES User(uID)
+);
+
 </sql><current_tab id="0"/></tab_sql></sqlb_project>
