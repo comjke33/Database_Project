@@ -1,4 +1,6 @@
 import sqlite3
+import requests
+from config import MOVIE_API_KEY
 
 db_name = "project.db"
 conn = sqlite3.connect(db_name, check_same_thread=False)
@@ -9,10 +11,18 @@ cursor = conn.cursor()
 #새로운 유저 추가(회원가입)
 def add_new_user(uID, password, gender, age, email):
     try:
+        #User 테이블
         cursor.execute("""
         INSERT INTO User (uID, Password, gender, age, email)
         VALUES (?, ?, ?, ?, ?)
         """, (uID, password, gender, age, email))
+        
+        #UserGenreScore 테이블
+        cursor.execute("""
+        INSERT INTO UserGenreScore (uID, drama, meloRomance, action, comedy, thriller, ero, horror, crime, animation, adventure, sf, fantasy, mystery, documentary, family, historical, war, performing, musical, western, other)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,(uID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        
         conn.commit()
         print(f"User '{uID}' 추가")
     except sqlite3.IntegrityError as e:
@@ -54,12 +64,12 @@ def get_user_info(user_id):
         WHERE uID = ?;
         """, (user_id,))
         row = cursor.fetchall()
-        row = row[0]
+            
         user_data.append({
-            "user_id": row[0],     # uId
-            "user_gender": row[1],      # gender
-            "user_age": row[2],      # age
-            "user_email": row[3]     # email
+            "user_id": row[0][0],     # uId
+            "user_gender": row[0][1],      # gender
+            "user_age": row[0][2],      # age
+            "user_email": row[0][3]     # email
         })
     except sqlite3.Error as e:
         print(f"유저 데이터 읽기 오류: {e}")
@@ -70,47 +80,50 @@ def get_user_info(user_id):
 def fetch_user_watched_movies(user_id):
     watched_list = []
     cursor.execute("""
-    SELECT m.mID, mName, Genre
+    SELECT m.mID, m.mName, GROUP_CONCAT(mg.genre, ', ') AS Genres
     FROM WatchedMovies wm
     JOIN Movie m ON wm.mID = m.mID
-    WHERE wm.uID = ?;
+    JOIN MovieGenre mg ON m.mID = mg.mID
+    WHERE wm.uID = ?
+    GROUP BY m.mID, m.mName;
     """, (user_id,))
     rows = cursor.fetchall()
 
     for row in rows:
         watched_list.append({
-            "movieCd": row[0],     # writer
+            "movieCd": row[0],     # movieCd
             "movieNm": row[1],      # moviename
-            "Genre": row[2],      # title
-            "content": row[3]     # content
+            "genre": row[2],      # genre
         })
 
-    print(f"감상한 영화 {user_id}: {rows[0][0]}")
+    #print(f"감상한 영화 {user_id}: {rows[0][0]}")
     return watched_list
 
 #user_id로 위시 리스트 조회
 def fetch_user_wishlist_movies(user_id):
     wish_list = []
+    
     cursor.execute("""
-    SELECT m.mID 
+    SELECT m.mID, m.mName, GROUP_CONCAT(mg.genre, ', ') AS Genres
     FROM WishlistMovies wl
     JOIN Movie m ON wl.mID = m.mID
-    WHERE wl.uID = ?;
+    JOIN MovieGenre mg ON m.mID = mg.mID
+    WHERE wl.uID = ?
+    GROUP BY m.mID, m.mName;
     """, (user_id,))
     rows = cursor.fetchall()
 
     for row in rows:
         wish_list.append({
-        "movieCd": row[0],     # writer
+        "movieCd": row[0],     # movieCd
         "movieNm": row[1],      # moviename
-        "Genre": row[2],      # title
-        "content": row[3]     # content
+        "genre": row[2],      # genre
     })
-    print(f"위시 리스트 {user_id}: {rows[0][0]}")
+    #print(f"위시 리스트 {user_id}: {rows[0][0]}")
     return wish_list
 
 #감상한 영화 추가
-def add_watched_movie(uID, mID):
+def add_watched_movie(uID, mID, movieNm):
     try:
         cursor.execute("SELECT 1 FROM Movie WHERE mID = ?",(mID,))
         movie_exists = cursor.fetchone()
@@ -118,7 +131,7 @@ def add_watched_movie(uID, mID):
         #영화가 없으면
         if not movie_exists:
             print(f"영화가 movie 테이블에 없음. 추가 중")
-            #add_to_movie(mID)
+            add_movie_to_DB(movieNm, mID)
         
         # WatchedMovies 테이블에 새로운 영화 삽입
         cursor.execute("""
@@ -133,7 +146,7 @@ def add_watched_movie(uID, mID):
         print(f"Operational error: {e}")
 
 #감상하고 싶은 영화 추가
-def add_wishlist_movie(uID, mID):
+def add_wishlist_movie(uID, mID, movieNm):
     try:
         cursor.execute("SELECT 1 FROM Movie WHERE mID = ?",(mID,))
         movie_exists = cursor.fetchone()
@@ -141,7 +154,7 @@ def add_wishlist_movie(uID, mID):
         #영화가 없으면
         if not movie_exists:
             print(f"영화가 movie 테이블에 없음. 추가 중")
-            #add_to_movie(mID)
+            add_movie_to_DB(movieNm, mID)
 
         # WishlistMovies 테이블에 새로운 영화 삽입
         cursor.execute("""
@@ -192,18 +205,19 @@ def delete_wishlist_movie(uID, mID):
         print(f"Error deleting movie from wishlist: {e}")
 
 #감상한 영화 하트 +1
-def press_heart(uID, mID):
-    genres = []
+def press_heart_plus(uID, mID):
     try:
         cursor.execute("""
         SELECT genre
-        FROM Movie
+        FROM MovieGenre
         WHERE mID = ?
-        """,(mID))
-    
-        rows = cursor.fetchall()
-        genres = [row[0] for row in rows]
-        for genre in genres:
+        """,(mID,))
+
+        genres = cursor.fetchall()
+
+        for genre_row in genres:
+            genre = genre_row[0]
+            
             query = f"""
             UPDATE UserGenreScore
             SET {genre} = {genre} + 1
@@ -218,17 +232,16 @@ def press_heart(uID, mID):
         print(f"데이터베이스 에러: {e}")
 
 #감상한 영화 하트 -1
-def press_heart(uID, mID):
+def press_heart_minus(uID, mID):
     genres = []
     try:
         cursor.execute("""
         SELECT genre
-        FROM Movie
+        FROM MovieGenre
         WHERE mID = ?
         """,(mID))
     
-        rows = cursor.fetchall()
-        genres = [row[0] for row in rows]
+        genres = cursor.fetchall()
         for genre in genres:
             query = f"""
             UPDATE UserGenreScore
@@ -293,8 +306,48 @@ def delete_post(cID):
         print(f"게시글 삭제 실패: {e}")
 
 ##### DB에 영화 추가(API요청) #####
-def add_movie_to_DB():
-    return 0
+def add_movie_to_DB(movieNm, movieCd):
+    # API 기본 URL 및 인증키
+    BASE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList"
+
+    # 요청 파라미터
+    params = {
+        "key": MOVIE_API_KEY,
+        "movieNm": movieNm,  # 검색할 영화 이름
+        "movieCd": "",
+        "genreAlt": ""
+    }
+
+    # JSON 형식으로 요청
+    response = requests.get(f"{BASE_URL}.json", params=params)
+
+    # 응답 처리
+    if response.status_code == 200:
+        data = response.json()  # JSON 응답 파싱
+        movie_list = data.get("movieListResult", {}).get("movieList", [])
+        #DB에 저장
+        for movie in movie_list:
+            movie_cd = movie.get('movieCd')
+            movieNm2 = movie.get('movieNm')
+            genres = movie.get('genreAlt')
+
+            if (movieNm == movieNm2) & (movie_cd == movieCd):
+                cursor.execute("""
+                INSERT OR IGNORE INTO Movie (mID, mName)
+                VALUES (?, ?)
+                """,(movie_cd, movieNm))
+
+                if genres:
+                    genre_list = [genre.strip() for genre in genres.split(",")]
+                    for genre in genre_list:
+                        cursor.execute("""
+                        INSERT INTO MovieGenre (mID, genre)
+                        VALUES (?, ?)
+                        """,(movie_cd, genre))
+        conn.commit()
+        print(f"'{movieNm}' 영화와 장르가 추가됨")
+    else:
+        print(f"API 요청 실패: {response.status_code}")
 
 #if __name__ == "__main__":
     #fetch_user_watched_movies("zxccyh")

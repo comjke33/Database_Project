@@ -10,11 +10,11 @@ BASE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovi
 
 conn = sqlite3.connect("project.db")
 cursor = conn.cursor()
-
+mn = "어벤져스"
 # 요청 파라미터 설정
 params = {
     "key": MOVIE_API_KEY,
-    "curPage": "251",
+    "movieNm": mn,
     "movieCd": "",
     "genreAlt": ""        
 }
@@ -28,13 +28,17 @@ if response.status_code == 200:
     movie_list = data.get("movieListResult", {}).get("movieList", [])
     for movie in movie_list:
         movie_cd = movie.get('movieCd')
+        movieNm = movie.get('movieNm')
+        genre = movie.get('genreAlt')
 
         #중복방지
         #cursor.execute("SELECT COUNT(*) FROM Movie WHERE mID = ?", (movie_cd,))         
         
         #cursor.execute("""INSERT INTO Movie (mID) VALUES (?)""", (movie_cd,))
-        print(movie.get('movieCd'))
-        print(movie.get('genreAlt'))
+        if(movieNm == mn):
+            print(movie.get('movieNm'))
+            print(movie.get('movieCd'))
+            print(genre)
 else:
     print(f"movidCd 추출 실패: {response.status_code}")
 
