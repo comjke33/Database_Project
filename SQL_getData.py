@@ -215,15 +215,39 @@ def press_heart_plus(uID, mID):
 
         genres = cursor.fetchall()
 
+        genre_parsing = {
+            "드라마" : 'drama',
+            "멜로/로맨스": 'meloRomance',
+            "액션": 'action',
+            "코미디": 'comedy',
+            "스릴러": 'thriller',
+            "성인물(에로)": 'ero',
+            "공포": 'horror',
+            "범죄": 'crime',
+            "애니메이션": 'animation',
+            "어드벤처": 'adventure',
+            "SF": 'sf',
+            "판타지": 'fantasy',
+            "미스터리": 'mystery',
+            "다큐멘터리": 'documentary',
+            "가족": 'family',
+            "사극": 'historical',
+            "전쟁": 'war',
+            "공연": 'performing',
+            "뮤지컬": 'musical',
+            "서부극": 'western',
+            "기타": 'other'
+        }
+
         for genre_row in genres:
-            genre = genre_row[0]
-            
+            genre = genre_parsing[genre_row[0]]
+            print({genre})
             query = f"""
             UPDATE UserGenreScore
             SET {genre} = {genre} + 1
             WHERE uID = ?;
             """
-            cursor.execute(query, (uID))
+            cursor.execute(query, (uID,))
         conn.commit()
         print(f"장르 점수 변경(증가) 완료")
     except sqlite3.OperationalError as e:
@@ -233,22 +257,48 @@ def press_heart_plus(uID, mID):
 
 #감상한 영화 하트 -1
 def press_heart_minus(uID, mID):
-    genres = []
     try:
         cursor.execute("""
         SELECT genre
         FROM MovieGenre
         WHERE mID = ?
-        """,(mID))
-    
+        """,(mID,))
+
         genres = cursor.fetchall()
-        for genre in genres:
+
+        genre_parsing = {
+            "드라마" : 'drama',
+            "멜로/로맨스": 'meloRomance',
+            "액션": 'action',
+            "코미디": 'comedy',
+            "스릴러": 'thriller',
+            "성인물(에로)": 'ero',
+            "공포": 'horror',
+            "범죄": 'crime',
+            "애니메이션": 'animation',
+            "어드벤처": 'adventure',
+            "SF": 'sf',
+            "판타지": 'fantasy',
+            "미스터리": 'mystery',
+            "다큐멘터리": 'documentary',
+            "가족": 'family',
+            "사극": 'historical',
+            "전쟁": 'war',
+            "공연": 'performing',
+            "뮤지컬": 'musical',
+            "서부극": 'western',
+            "기타": 'other'
+        }
+
+        for genre_row in genres:
+            genre = genre_parsing[genre_row[0]]
+            print({genre})
             query = f"""
             UPDATE UserGenreScore
             SET {genre} = {genre} - 1
             WHERE uID = ?;
             """
-            cursor.execute(query, (uID))
+            cursor.execute(query, (uID,))
         conn.commit()
         print(f"장르 점수 변경(감소) 완료")
     except sqlite3.OperationalError as e:
@@ -348,6 +398,7 @@ def add_movie_to_DB(movieNm, movieCd):
         print(f"'{movieNm}' 영화와 장르가 추가됨")
     else:
         print(f"API 요청 실패: {response.status_code}")
+
 
 #if __name__ == "__main__":
     #fetch_user_watched_movies("zxccyh")
