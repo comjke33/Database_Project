@@ -247,6 +247,9 @@
         // Flask 백엔드에서 받은 영화 목록
         const movieWatchedListFromBackend = {{ user_watchedlist | tojson }};
         const movieWishListFromBackend = {{ user_wishlist | tojson }};
+
+        const movieWatchListHeartFromBackend = {{ user_watchlist_heart | tojson }};
+        const movieWishListHeartFromBackend = {{ user_wishlist_heart | tojson }};
         
         let deleteButtonsVisible = false;
 
@@ -267,6 +270,7 @@
                 movieWishListElement.innerHTML = '<p>No movies in the list.</p>';
             }
         });
+
 
         // 폼 보이기/숨기기
         addWatchedListMovieButton.addEventListener('click', () => {
@@ -459,18 +463,34 @@
             movieListItem.style.justifyContent = 'space-between'; // Space out elements
             movieListItem.style.alignItems = 'center'; // Vertically align elements
             movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
-
-            movieListItem.innerHTML = `
-                <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} : ${movie.genreAlt || '-'}</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
-                        <i class="far fa-heart"></i> <!-- 하트 아이콘 -->
-                    </button>
-                    <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
-                        <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
-                    </button>
-                </div>
-            `;
+            
+            if(movie.heart){
+                movieListItem.innerHTML = `
+                    <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} : ${movie.genreAlt || '-'}</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-heart"></i> <!-- 하트 아이콘 -->
+                        </button>
+                        <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                        </button>
+                    </div>
+                `;
+            }
+            else{
+                movieListItem.innerHTML = `
+                    <span style="line-height: 40px; font-size: 16px;">${movie.movieNm} : ${movie.genreAlt || '-'}</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="far fa-heart"></i> <!-- 하트 아이콘 -->
+                        </button>
+                        <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                        </button>
+                    </div>
+                `;
+            }
+            
             movieWatchedListElement.appendChild(movieListItem);
 
             // Add delete functionality to the button
