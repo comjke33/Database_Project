@@ -23,8 +23,8 @@ def login():
         password = request.form.get('password')
         
 
-        #user_id = 'admin'
-        #password = 'admin'
+        user_id = 'admin'
+        password = 'admin'
 
         session['user_id'] = user_id  # 세션에 user_id 저장
         if (SQL_getData.login(user_id, password)):
@@ -65,6 +65,7 @@ def profile_page():
     user_id = session.get('user_id') 
     user_email = session.get('user_email')
     
+    print("======================================", user_id)
     user_data = SQL_getData.get_user_info(user_id)
     # TODO
     # 내 영화 감상 리스트 가져오는 SQL
@@ -75,7 +76,7 @@ def profile_page():
     # 내 영화 위시 리스트 가져오는 SQL
     user_wishlist = SQL_getData.fetch_user_wishlist_movies(user_id)
     #user_wishlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
-    
+
     # if user_id and user_email:
     return render_template('profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
     return "No user_id found. Please log in.", 401 
@@ -86,6 +87,14 @@ def search_movie():
     query = request.args.get('query')
     data = API_MovieInfo.getMovieInfo(query)
     return data
+
+# 영화 검색 API 엔드포인트
+@app.route('/matching', methods=['GET'])
+def matching_page():
+    
+    return render_template('matching_page.html')
+
+
 
 @app.route('/add-watchedlist', methods=['POST'])
 def add_watchedlist():

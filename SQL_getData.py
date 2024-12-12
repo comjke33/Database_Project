@@ -252,7 +252,7 @@ def press_heart_plus(uID, mID):
         conn.commit()
 
         cursor.execute("""
-        UPDATE WatchedMovie
+        UPDATE WatchedMovies
         SET heart = 1
         WHERE mID = ? AND uID = ?;
         """,(mID, uID))
@@ -309,7 +309,7 @@ def press_heart_minus(uID, mID):
             cursor.execute(query, (uID,))
         conn.commit()
         cursor.execute("""
-        UPDATE WatchedMovie
+        UPDATE WatchedMovies
         SET heart = 0
         WHERE mID = ? and uID = ?;
         """,(mID,uID))
