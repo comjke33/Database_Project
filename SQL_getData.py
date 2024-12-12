@@ -321,7 +321,6 @@ def press_heart_minus(uID, mID):
     except sqlite3.Error as e:
         print(f"데이터베이스 에러: {e}")
 
-
 ##### 커뮤니티 페이지 - DB 연동 -> 공지페이지 #####
 
 #현재 페이지 목록 출력
@@ -413,6 +412,66 @@ def add_movie_to_DB(movieNm, movieCd):
         print(f"'{movieNm}' 영화와 장르가 추가됨")
     else:
         print(f"API 요청 실패: {response.status_code}")
+
+##### 매칭 페이지 #####
+
+# 가장 높은 점수를 가진 유저를 찾음
+def get_matching_result(user_id):
+    user_data = []
+    try:
+        cursor.execute("""
+            WITH user_scores AS (
+                SELECT *
+                FROM UserGenreScore
+                WHERE uID = ?
+            ),
+            score_difference AS (
+                SELECT
+                    u.uID AS other_uID,
+                    (
+                        COALESCE(ABS(u.drama - v.drama), 0) +
+                        COALESCE(ABS(u.meloRomance - v.meloRomance), 0) +
+                        COALESCE(ABS(u.action - v.action), 0) +
+                        COALESCE(ABS(u.comedy - v.comedy), 0) +
+                        COALESCE(ABS(u.thriller - v.thriller), 0) +
+                        COALESCE(ABS(u.ero - v.ero), 0) +
+                        COALESCE(ABS(u.horror - v.horror), 0) +
+                        COALESCE(ABS(u.crime - v.crime), 0) +
+                        COALESCE(ABS(u.animation - v.animation), 0) +
+                        COALESCE(ABS(u.adventure - v.adventure), 0) +
+                        COALESCE(ABS(u.sf - v.sf), 0) +
+                        COALESCE(ABS(u.fantasy - v.fantasy), 0) +
+                        COALESCE(ABS(u.mystery - v.mystery), 0) +
+                        COALESCE(ABS(u.documentary - v.documentary), 0) +
+                        COALESCE(ABS(u.family - v.family), 0) +
+                        COALESCE(ABS(u.historical - v.historical), 0) +
+                        COALESCE(ABS(u.war - v.war), 0) +
+                        COALESCE(ABS(u.performing - v.performing), 0) +
+                        COALESCE(ABS(u.musical - v.musical), 0) +
+                        COALESCE(ABS(u.western - v.western), 0) +
+                        COALESCE(ABS(u.other - v.other), 0)
+                    ) AS total_difference
+                FROM UserGenreScore u
+                CROSS JOIN user_scores v
+                WHERE u.uID != ?
+            )
+            SELECT 
+                other_uID
+            FROM score_difference
+            ORDER BY total_difference ASC
+            LIMIT 1;
+
+        """
+        , (user_id,user_id,))
+        row = cursor.fetchall()
+    
+        user_data.append({
+            "user_id": row[0],     # uId
+        })
+    except sqlite3.Error as e:
+        print(f"유저 데이터 읽기 오류: {e}")
+    
+    return user_data
 
 
 #if __name__ == "__main__":

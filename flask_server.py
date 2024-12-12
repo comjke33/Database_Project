@@ -1,7 +1,9 @@
 from flask import Flask, render_template, redirect, request, session
-from config import APP_KEY
+import random
 
+from config import APP_KEY
 import API_BoxOffice, SQL_getData, API_MovieInfo
+
 
 app = Flask(__name__) 
 app.secret_key = APP_KEY
@@ -23,8 +25,8 @@ def login():
         password = request.form.get('password')
         
 
-        user_id = 'admin'
-        password = 'admin'
+        # user_id = 'admin'
+        # password = 'admin'
 
         session['user_id'] = user_id  # 세션에 user_id 저장
         if (SQL_getData.login(user_id, password)):
@@ -88,13 +90,34 @@ def search_movie():
     data = API_MovieInfo.getMovieInfo(query)
     return data
 
-# 영화 검색 API 엔드포인트
+# 영화 매칭 시스템
 @app.route('/matching', methods=['GET'])
 def matching_page():
+    user_id = session.get('user_id') 
+
+    matching = SQL_getData.get_matching_result(user_id)
+
+    if len(matching) == 0:
+        print("Matching list is empty!")
+        return "Can't Matching Friends", 401
+    else:
+        # TODO 
+        # 몇 명 추천할 건지 for문으로 추가 
+        matching_num = 3
+        matching_idx = [random.randint(0, len(matching) - 1) for _ in range(matching_num)]
+        
+
+        matching_result = []
+        for i in range(0, matching_num):
+            selected_item = matching[matching_idx[i]]
+            
+            print("===============================",selected_item)
+            matching_result.append(SQL_getData.get_user_info(selected_item['user_id'][0]))
+
+        return render_template('matching_page.html', matching_result=matching_result[0])
     
-    return render_template('matching_page.html')
 
-
+# =====================================================================
 
 @app.route('/add-watchedlist', methods=['POST'])
 def add_watchedlist():
