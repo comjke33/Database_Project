@@ -48,13 +48,15 @@ def home_page():
 # 커뮤니티 페이지
 @app.route('/community')
 def community_page():
-    # community_data = SQL_getData.getCommunity()
+    community_data = SQL_getData.getCommunity()
+    """
     community_data = [{"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
                        {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
                        {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
                        {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
                        {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"}
                        ]
+                       """
     return render_template('community_page.html', community_data=community_data)
 
 # 나의 개인정보 페이지

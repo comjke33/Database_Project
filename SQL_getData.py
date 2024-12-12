@@ -80,7 +80,7 @@ def get_user_info(user_id):
 def fetch_user_watched_movies(user_id):
     watched_list = []
     cursor.execute("""
-    SELECT m.mID, m.mName, GROUP_CONCAT(mg.genre, ', ') AS Genres
+    SELECT m.mID, m.mName, GROUP_CONCAT(mg.genre, ', ') AS Genres, wm.heart
     FROM WatchedMovies wm
     JOIN Movie m ON wm.mID = m.mID
     JOIN MovieGenre mg ON m.mID = mg.mID
@@ -88,14 +88,15 @@ def fetch_user_watched_movies(user_id):
     GROUP BY m.mID, m.mName;
     """, (user_id,))
     rows = cursor.fetchall()
-
+    print(rows)
     for row in rows:
         watched_list.append({
             "movieCd": row[0],     # movieCd
             "movieNm": row[1],      # moviename
-            "genre": row[2],      # genre
+            "genreAlt": row[2],      # genre
+            "heart": row[3]         #heart
         })
-
+    print(watched_list)
     #print(f"감상한 영화 {user_id}: {rows[0][0]}")
     return watched_list
 
@@ -117,7 +118,7 @@ def fetch_user_wishlist_movies(user_id):
         wish_list.append({
         "movieCd": row[0],     # movieCd
         "movieNm": row[1],      # moviename
-        "genre": row[2],      # genre
+        "genreAlt": row[2],      # genre
     })
     #print(f"위시 리스트 {user_id}: {rows[0][0]}")
     return wish_list
@@ -249,6 +250,13 @@ def press_heart_plus(uID, mID):
             """
             cursor.execute(query, (uID,))
         conn.commit()
+
+        cursor.execute("""
+        UPDATE WatchedMovie
+        SET heart = 1
+        WHERE mID = ? AND uID = ?;
+        """,(mID, uID))
+        conn.commit()
         print(f"장르 점수 변경(증가) 완료")
     except sqlite3.OperationalError as e:
         print(f"SQL 에러 발생: {e}")
@@ -300,6 +308,13 @@ def press_heart_minus(uID, mID):
             """
             cursor.execute(query, (uID,))
         conn.commit()
+        cursor.execute("""
+        UPDATE WatchedMovie
+        SET heart = 0
+        WHERE mID = ? and uID = ?;
+        """,(mID,uID))
+        conn.commit()
+
         print(f"장르 점수 변경(감소) 완료")
     except sqlite3.OperationalError as e:
         print(f"SQL 에러 발생: {e}")
@@ -310,7 +325,7 @@ def press_heart_minus(uID, mID):
 ##### 커뮤니티 페이지 - DB 연동 -> 공지페이지 #####
 
 #현재 페이지 목록 출력
-def community_page():
+def getCommunity():
     community_data = []
     try:
         cursor.execute("""
