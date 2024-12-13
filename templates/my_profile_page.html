@@ -196,7 +196,7 @@
             <div> 
                 <p><strong>이름: </strong>{{user_data[0].user_id}}</p>
                 <p><strong>성별: </strong>{{user_data[0].user_gender}}</p>
-                <p><strong>나이: </strong>{{user_data[0].user_age}}</p>
+                <p><strong>생년월일: </strong>{{user_data[0].user_age}}</p>
                 <p><strong>Email: </strong>{{user_data[0].user_email}}</p>
             </div>
         </div>
@@ -504,8 +504,12 @@
                 `;
             }
            
-            movieWatchedListElement.appendChild(movieListItem);
-
+            if (movieWatchedListFromBackend.length > 0) {
+                movieWatchedListElement.appendChild(movieListItem);
+            } else {
+                movieWatchedListElement.innerHTML = '';
+                movieWatchedListElement.appendChild(movieListItem);
+            }
             // Add delete functionality to the button
             const heartWatchedlistButton = movieListItem.querySelector('.heart-watchedlist-btn');
             heartWatchedlistButton.addEventListener('click', async () => {
@@ -536,8 +540,13 @@
                     </button>
                 </div>
             `;
-            movieWishListElement.appendChild(movieListItem);
-
+            
+            if (movieWishListFromBackend.length > 0) {
+                movieWishListElement.appendChild(movieListItem);
+            } else {
+                movieWishListElement.innerHTML = '';
+                movieWishListElement.appendChild(movieListItem);
+            }
             // Add delete functionality to the button
             const deleteWishlistButton = movieListItem.querySelector('.delete-wishlist-btn');
             deleteWishlistButton.addEventListener('click', async () => {
@@ -560,8 +569,11 @@
                 });
 
                 if (response.ok) {
-                    // Remove from frontend list
-                    movieWatchedListElement.removeChild(movieListItem);
+                    if (movieWatchedListFromBackend.length-1 > 0) {
+                        movieWatchedListElement.removeChild(movieListItem);
+                    } else {
+                        movieWatchedListElement.innerHTML = '<p>No movies in the list.</p>';
+                    }
 
                     // Remove from local list
                     const index = movieWatchedListFromBackend.findIndex(m => m.movieCd === movie.movieCd);
@@ -596,8 +608,11 @@
                 });
 
                 if (response.ok) {
-                    // Remove from frontend list
-                    movieWishListElement.removeChild(movieListItem);
+                    if (movieWishListFromBackend.length-1 > 0) {
+                        movieWishListElement.removeChild(movieListItem);
+                    } else {
+                        movieWishListElement.innerHTML = '<p>No movies in the list.</p>';
+                    }
 
                     // Remove from local list
                     const index = movieWishListFromBackend.findIndex(m => m.movieCd === movie.movieCd);

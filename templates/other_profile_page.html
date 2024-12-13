@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>사용자 프로필</title>
+    <style>
+        body { 
+            font-family: Pretendard;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .section {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            background: #c8add1;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 2rem;
+            margin-top: 0rem;
+            background-color: #906fa8; /* 원하는 배경색 */
+            padding: 20px 30px; /* 텍스트와 배경 사이의 여백 */
+            border-radius: 20px; /* 둥근 모서리 */
+        }
+        .info{
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .user_info{
+            display: flex;  align-items: center;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .movie-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 0.7rem 1.5rem;
+            background-color: #5b3a8d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #432865;
+        }
+        .hidden {
+            display: none;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between; /* 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            gap: 10px; /* 요소 간 간격 */
+        }
+       
+    </style>
+</head>
+<body>
+    <section id="community" class="section">
+        <h2>사용자 프로필</h2>
+        <p>사용자 정보</p>
+        <div class="user_info">
+            <i class="fas fa-user fa-5x" style="margin-left: 50px; margin-right: 80px;"></i>
+            <div> 
+                <p><strong>이름: </strong>{{user_data[0].user_id}}</p>
+                <p><strong>성별: </strong>{{user_data[0].user_gender}}</p>
+                <p><strong>생년월일: </strong>{{user_data[0].user_age}}</p>
+                <p><strong>Email: </strong>{{user_data[0].user_email}}</p>
+            </div>
+        </div>
+        <div class="flex-container">
+            <p>감상 리스트</p>
+        </div>
+        <div id="movie-watchedlist" class="info">
+            <!-- 영화 목록이 여기에 추가됩니다 -->
+        </div> 
+        <div class="flex-container">
+            <p>위시 리스트</p>
+        </div>
+        <div id="movie-wishlist" class="info">
+            <!-- 영화 목록이 여기에 추가됩니다 -->
+        </div> 
+    </section>
+    <script>
+        // watchedlist
+        const movieWatchedListElement = document.getElementById('movie-watchedlist'); // 감상 리스트 출력 영역
+
+        // wishlist
+        const movieWishListElement = document.getElementById('movie-wishlist'); // 감상 리스트 출력 영역
+
+        // Flask 백엔드에서 받은 영화 목록
+        const movieWatchedListFromBackend = {{ user_watchedlist | tojson }};
+        const movieWishListFromBackend = {{ user_wishlist | tojson }};
+        
+        let deleteButtonsVisible = false;
+
+        // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
+        document.addEventListener('DOMContentLoaded', () => {
+            if (movieWatchedListFromBackend.length > 0) {
+                movieWatchedListFromBackend.forEach(movie => addToWatchedMovieList(movie));
+            } else {
+                movieWatchedListElement.innerHTML = '<p>No movies in the list.</p>';
+            }
+        });
+
+        // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
+        document.addEventListener('DOMContentLoaded', () => {
+            if (movieWishListFromBackend.length > 0) {
+                movieWishListFromBackend.forEach(movie => addToWishMovieList(movie));
+            } else {
+                movieWishListElement.innerHTML = '<p>No movies in the list.</p>';
+            }
+        });
+
+        // 영화 목록에 추가 함수
+        function addToWatchedMovieList(movie) {
+            // console.log('Adding movie to list:', movie);
+            const movieListItem = document.createElement('li');
+            movieListItem.style.display = 'flex'; // Use flexbox for alignment
+            movieListItem.style.justifyContent = 'space-between'; // Space out elements
+            movieListItem.style.alignItems = 'center'; // Vertically align elements
+            movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
+            
+            if(movie.heart){
+                movieListItem.innerHTML = `
+                    <span style="line-height: 40px; font-size: 16px;"><strong>[${movie.movieNm}]</strong> (${movie.genreAlt || '-'})</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-heart"></i> <!-- 하트 아이콘 -->
+                        </button>
+                        <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                        </button>
+                    </div>
+                `;
+            }
+            else{
+                movieListItem.innerHTML = `
+                    <span style="line-height: 40px; font-size: 16px;"><strong>[${movie.movieNm}]</strong> (${movie.genreAlt || '-'})</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="heart-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: inline-block; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="far fa-heart"></i> <!-- 하트 아이콘 -->
+                        </button>
+                        <button class="delete-watchedlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                            <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                        </button>
+                    </div>
+                `;
+            }
+           
+            movieWatchedListElement.appendChild(movieListItem);
+        }
+
+         // 영화 목록에 추가 함수
+        function addToWishMovieList(movie) {
+            // console.log('Adding movie to list:', movie);
+            const movieListItem = document.createElement('li');
+            movieListItem.style.display = 'flex'; // Use flexbox for alignment
+            movieListItem.style.justifyContent = 'space-between'; // Space out elements
+            movieListItem.style.alignItems = 'center'; // Vertically align elements
+            movieListItem.style.height = '40px'; // Set a fixed height to prevent resizing
+
+            movieListItem.innerHTML = `
+                <span style="line-height: 40px; font-size: 16px;"><strong>[${movie.movieNm}]</strong> (${movie.genreAlt || '-'})</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="delete-wishlist-btn" data-movie-id="${movie.movieCd}" style="display: none; height: 36px; padding: 0 12px; font-size: 14px; border-radius: 4px;">
+                        <i class="fas fa-trash-alt"></i> <!-- 휴지통 아이콘 -->
+                    </button>
+                </div>
+            `;
+            movieWishListElement.appendChild(movieListItem);
+
+        }
+
+        function isMovieInList(movie, movieList) {
+            return movieList.some(existingMovie => existingMovie.movieCd === movie.movieCd);
+        }
+        
+    </script>
+</body>
+</html>

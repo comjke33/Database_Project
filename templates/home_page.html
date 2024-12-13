@@ -114,7 +114,7 @@
   </style>
 </head>
 <script>
-  const user_id = "comjke33";
+  const user_id = {{ user_id | tojson }};
 </script>
 <body>
   <header>
@@ -133,7 +133,7 @@
 
   <script>
     // JavaScript에서 `user_id` 값을 동적으로 HTML에 삽입
-    document.getElementById('user-id-display').textContent = user_id+" 님";
+    document.getElementById('user-id-display').textContent = "★ "+user_id+" 님 ★";
   </script>
   <div class="container">
     <section id="recommendations" class="section">

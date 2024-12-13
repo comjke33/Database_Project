@@ -58,6 +58,7 @@ def signup():
 
                     
             return redirect('/home')
+        
     return render_template('signup_page.html')
 
 # 기본 페이지
@@ -65,48 +66,67 @@ def signup():
 def home_page():
     dailyBoxOffice_movie = session["dailyBoxOffice_movie"]
     weeklyBoxOffice_movie = session["weeklyBoxOffice_movie"]
+    user_id = session.get('user_id') 
 
     #return render_template('test.html')
     if dailyBoxOffice_movie and weeklyBoxOffice_movie:
-        return render_template('home_page.html', dailyBoxOffice_movie=dailyBoxOffice_movie, weeklyBoxOffice_movie=weeklyBoxOffice_movie)
+        return render_template('home_page.html', dailyBoxOffice_movie=dailyBoxOffice_movie, weeklyBoxOffice_movie=weeklyBoxOffice_movie, user_id=user_id)
     return "No user_id found. Please log in.", 401
 
 # 커뮤니티 페이지
 @app.route('/community')
 def community_page():
+    user_id = session.get('user_id') 
     community_data = SQL_getData.getCommunity()
-    """
-    community_data = [{"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
-                       {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
-                       {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
-                       {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"},
-                       {"author" : "Sally", "movie" : "Interstella", "title" : "Hi there", "content" : "Hi therethere"}
-                       ]
-                       """
-    return render_template('community_page.html', community_data=community_data)
+
+    return render_template('community_page.html', community_data=community_data, user_id=user_id)
 
 # 나의 개인정보 페이지
 @app.route('/profile')
 def profile_page():
     user_id = session.get('user_id') 
-    user_email = session.get('user_email')
-    
-    print("======================================", user_id)
+
+    if not user_id:
+        return "No user_id found. Please log in.", 401  # 로그인하지 않은 경우 처리
+
+    try:
+        # 사용자 정보 가져오기
+        user_data = SQL_getData.get_user_info(user_id)
+        
+        # 유저 정보가 없으면 처리
+        if user_data is None:
+            return "User not found.", 404  # 해당 사용자가 없을 경우
+
+        # 사용자의 시청 목록 가져오기
+        user_watchedlist = SQL_getData.fetch_user_watched_movies(user_id)
+        # 사용자의 찜 목록 가져오기
+        user_wishlist = SQL_getData.fetch_user_wishlist_movies(user_id)
+
+        return render_template('my_profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
+
+    except Exception as e:
+        # 예외 발생 시 에러 메시지 로깅 또는 사용자에게 보여주기
+        print(f"Error: {e}")
+        return "An error occurred while fetching your profile data. Please try again later.", 500
+
+# 타인의 프로필 페이지
+@app.route('/profile/<user_id>')
+def profile(user_id):
     user_data = SQL_getData.get_user_info(user_id)
-    print(user_data)
-    # TODO
+    
     # 내 영화 감상 리스트 가져오는 SQL
     user_watchedlist = SQL_getData.fetch_user_watched_movies(user_id)
     #user_watchedlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "genre":"스릴러"}]
 
-    # TODO
     # 내 영화 위시 리스트 가져오는 SQL
     user_wishlist = SQL_getData.fetch_user_wishlist_movies(user_id)
     #user_wishlist = [{"movieCd":"20148493", "movieNm":"어벤져스: 에이지 오브 울트론", "openDt":"20150423"}]
 
-    # if user_id and user_email:
-    return render_template('profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
-    return "No user_id found. Please log in.", 401 
+    if user_data:
+        return render_template('other_profile_page.html', user_data=user_data, user_watchedlist=user_watchedlist, user_wishlist=user_wishlist)
+    else:
+        return "User not found", 404  # 유저를 찾을 수 없을 경우
+
 
 # 영화 검색 API 엔드포인트
 @app.route('/search', methods=['GET'])
@@ -127,8 +147,8 @@ def matching_page():
     else:
         # TODO 
         # 몇 명 추천할 건지 for문으로 추가 
-        matching_num = len(matching)
-        user_num = matching_num
+        matching_num = 6
+        user_num = len(matching)
 
         matching_idx = random.sample(range(user_num), matching_num)
 
@@ -208,6 +228,20 @@ def delete_wishlist():
     user_id = session.get('user_id')
     SQL_getData.delete_wishlist_movie(user_id, movie_cd)
     return {'message': 'Movie deleted successfully'}, 200
+
+@app.route('/add-post', methods=['POST'])
+def add_post():
+    response = request.json  # Parse the JSON data from the request
+    title = response.get('title')
+    content = response.get('content')
+    mName = response.get('mName')
+    user_id = session.get('user_id')
+
+    if user_id == '':
+        return {'message': 'user_id undefined'}, 401
+
+    SQL_getData.add_new_post(title, content, mName, user_id)
+    return {'message': 'Movie added successfully'}, 200
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

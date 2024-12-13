@@ -328,17 +328,18 @@ def getCommunity():
     community_data = []
     try:
         cursor.execute("""
-        SELECT writer, moviename, title, content
+        SELECT cID, title, content, mName, writer
         FROM COMMUNITY
         """)
         rows = cursor.fetchall()
 
         for row in rows:
             community_data.append({
-                "author": row[0],     # writer
-                "movie": row[1],      # moviename
-                "title": row[2],      # title
-                "content": row[3]     # content
+                "cID": row[0],     
+                "title": row[1],   
+                "content": row[2], 
+                "mName": row[3],
+                "writer": row[4],    
             })
     except sqlite3.Error as e:
         print(f"커뮤니티 데이터 읽기 오류: {e}")
@@ -346,12 +347,12 @@ def getCommunity():
     return community_data
 
 #새로운 페이지 추가
-def add_new_post(title, content, moviename, writer):
+def add_new_post(title, content, mName, writer):
     try:
         cursor.execute("""
-        INSERT INTO COMMUNITY (title, content, moviename, writer)
-        VALUES (?, ?, ?, ?)
-        """, (title, content, moviename, writer))
+        INSERT INTO Community (title, content, mName, writer)
+        VALUES (?, ?, ?, ?);
+        """, (title, content, mName, writer))
         conn.commit()
         print(f"DB에 추가: '{title}' by {writer}")
     except sqlite3.Error as e:
@@ -361,7 +362,7 @@ def add_new_post(title, content, moviename, writer):
 def delete_post(cID):
     try:
         cursor.execute("""
-        DELETE FROM COMMUNITY
+        DELETE FROM Community
         WHERE cID = ?
         """, (cID,))
         conn.commit()  # 변경사항 저장

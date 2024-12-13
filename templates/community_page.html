@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <title>Community Site</title>
     <script>
-        const communityData= {{ community_data|tojson}};
+        const communityBackend = {{ community_data | tojson }};
+        const user_id = {{ user_id | tojson }};
+        
     </script>
     <style>
-        body { 
+        body {
             font-family: Pretendard;
             background-color: #f4f4f4;
             color: #333;
@@ -22,7 +25,8 @@
         .section {
             width: 90%;
             max-width: 800px;
-            margin: 2rem auto;
+            margin-top: 2rem;
+            margin-bottom: 0rem;
             background: #c8add1;
             padding: 2rem;
             border-radius: 10px;
@@ -33,18 +37,19 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             font-weight: bold;
             color: #fff;
-            margin-bottom: 2rem;
             margin-top: 0rem;
-            background-color: #906fa8; /* 원하는 배경색 */
-            padding: 20px 30px; /* 텍스트와 배경 사이의 여백 */
-            border-radius: 20px; /* 둥근 모서리 */
+            margin-bottom: 0rem;
+            background-color: #906fa8;
+            padding: 20px 30px;
+            border-radius: 20px;
         }
         .card {
             background: #f9f9f9;
             padding: 1.5rem;
             border-radius: 8px;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .card:hover {
@@ -59,35 +64,188 @@
             font-weight: bold;
         }
         p {
-          line-height: 1.6;
+            line-height: 1.6;
         }
-        .content-info{
-            color: #6c757d; /* 파란색 */
+        .content-info {
+            color: #6c757d;
             font-weight: bold;
-            font-size:15px;
+            font-size: 15px;
+        }
+        .post-form {
+            display: none; /* 기본적으로 폼은 숨김 */
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+        #post-add {
+            height: 36px;
+            padding: 0 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #5b3a8d;
+            color: white;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .post-btn {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .post {
+            background: #906fa8;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .post-form input, .post-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .post-form button {
+            padding: 10px 20px;
+            background-color: #5b3a8d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .submit-container{
+            display: flex;
+            justify-content: flex-end; /* 내용을 오른쪽 끝으로 정렬 */
+            
         }
     </style>
 </head>
 <body>
     <section id="community" class="section">
         <h2>커뮤니티</h2>
-        <!-- 영화 카드가 동적으로 추가될 영역 -->
+        <div class="post-btn">
+            <button id="post-add">글쓰기</button>
+        </div>
+
+        <!-- 글쓰기 폼 -->
+        <div id="post-form" class="post-form" style="display:none; ">
+            <input type="text" id="post-title" placeholder="제목을 입력하세요" />
+            <input type="text" id="post-mName" placeholder="영화 제목을 입력하세요" />
+            <textarea id="post-content" rows="4" placeholder="내용을 입력하세요"></textarea>
+            <div class="submit-container">
+                <button id="submit-post">제출</button>
+            </div>
+            
+        </div>
+
+        <div id="post-list" class="post">
+            <!-- 커뮤니티 게시물이 동적으로 추가될 영역 -->
+        </div>
     </section>
+
     <script>
-        const recommendationsSection = document.getElementById('community');
-        console.log(communityData);
-        communityData.forEach(c => {
-            const card = document.createElement('div');
-            card.classList.add('card');
+        const recommendationsSection = document.getElementById('post-list');
+        const addPostButton = document.getElementById('post-add');
+        const postForm = document.getElementById('post-form');
+        const submitPostButton = document.getElementById('submit-post');
 
-            card.innerHTML = `
-                <h3>${c.title}</h3>
-                <p>${c.content}</p>
-                <p class="content-info"><em>${c.movie}</em> | ${c.author}</p>
-            `;
 
-            recommendationsSection.appendChild(card);
+        // 페이지 로드 시 DB에서 받은 커뮤니티 데이터 동적으로 추가
+        document.addEventListener('DOMContentLoaded', () => {
+            if (communityBackend.length > 0) {
+                communityBackend.forEach(c => {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.innerHTML = `
+                        <h3>${c.title}</h3>
+                        <p>${c.content}</p>
+                        <p class="content-info"><em>${c.mName}</em> | ${c.writer}</p>
+                    `;
+                    
+                    recommendationsSection.appendChild(card);
+                });
+            } else {
+                recommendationsSection.innerHTML = '<p style="color: white; text-align: center;">현재 커뮤니티 게시물이 없습니다.</p>';
+            }
         });
+
+
+        // 글쓰기 폼 보이기/숨기기 토글
+        addPostButton.addEventListener('click', () => {
+            postForm.style.display = postForm.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // 글 제출
+        submitPostButton.addEventListener('click', async () => {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+
+            let mName = document.getElementById('post-mName').value;
+
+            // mName이 undefined이거나 빈 값인 경우 "자유"로 기본값 설정
+            if (mName === undefined || mName.trim() === "") {
+                mName = "자유";
+            }
+            try {
+                // Send a POST request to update the database
+                const response = await fetch('/add-post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({title, content, mName}), // Send the movie object to the backend
+                });
+
+                if (response.ok) {
+                    // Update the frontend list only if the database update is successful
+                    if (title && content) {
+                        // 새로운 글을 동적으로 추가
+                        const newCard = document.createElement('div');
+                        newCard.classList.add('card');
+                        newCard.innerHTML = `
+                            <h3>${title}</h3>
+                            <p>${content}</p>
+                            <p class="content-info"> ${mName} | ${user_id}</p>
+                        `;
+
+                        if (communityBackend.length > 0) {
+                            recommendationsSection.appendChild(newCard);
+                        } else {
+                            recommendationsSection.innerHTML = '';
+                            recommendationsSection.appendChild(newCard);
+                        }
+
+                        // 글쓰기 폼 초기화 후 숨김
+                        document.getElementById('post-title').value = '';
+                        document.getElementById('post-mName').value = '';
+                        document.getElementById('post-content').value = '';
+                        postForm.style.display = 'none';
+                    } else {
+                        alert('제목과 내용을 입력하세요.');
+                    }
+                    communityBackend.push({title, content, mName}); // Update local copy of the list
+                    // alert('Movie added successfully!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to add post:', errorData.message);
+                    alert('Failed to add post. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error while adding post to DB:', error);
+                alert('An error occurred while adding post.');
+            }
+            
+        });
+
+        
     </script>
 </body>
 </html>
