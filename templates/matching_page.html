@@ -84,8 +84,12 @@
 
         // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('User matching backend data:', userMatchingBackend);
             if (userMatchingBackend.length > 0) {
-                userMatchingBackend.forEach(matchedUser => addToMatchingList(matchedUser));
+                userMatchingBackend.forEach(matchedUser => {
+                    console.log('Adding matched user:', matchedUser);
+                    addToMatchingList(matchedUser[0])
+            });
             } else {
                 userMatchingListElement.innerHTML = '<p>No matched users in the list.</p>';
             }

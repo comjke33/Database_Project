@@ -117,24 +117,23 @@ def matching_page():
     user_id = session.get('user_id') 
 
     matching = SQL_getData.get_matching_result(user_id)
-
     if len(matching) == 0:
         print("Matching list is empty!")
         return "Can't Matching Friends", 401
     else:
         # TODO 
         # 몇 명 추천할 건지 for문으로 추가 
-        matching_num = 3
-        matching_idx = [random.randint(0, len(matching) - 1) for _ in range(matching_num)]
-        
+        matching_num = len(matching)
+        user_num = 2
+
+        matching_idx = random.sample(range(user_num), matching_num)
 
         matching_result = []
         for i in range(0, matching_num):
             selected_item = matching[matching_idx[i]]
-            
-            matching_result.append(SQL_getData.get_user_info(selected_item['user_id'][0]))
+            matching_result.append(SQL_getData.get_user_info(selected_item['user_id']))
 
-        return render_template('matching_page.html', matching_result=matching_result[0])
+        return render_template('matching_page.html', matching_result=matching_result)
     
 
 # =====================================================================

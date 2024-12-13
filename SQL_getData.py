@@ -459,19 +459,21 @@ def get_matching_result(user_id):
                 other_uID
             FROM score_difference
             ORDER BY total_difference ASC
-            LIMIT 1;
-
-        """
-        , (user_id,user_id,))
-        row = cursor.fetchall()
-    
-        user_data.append({
-            "user_id": row[0],     # uId
-        })
+        """, (user_id, user_id))
+        
+        rows = cursor.fetchall()  # Fetch all matching users
+        
+        # Add all matching users to user_data
+        for row in rows:
+            user_data.append({
+                "user_id": row[0],  # uID of the matching user
+            })
+        
     except sqlite3.Error as e:
         print(f"유저 데이터 읽기 오류: {e}")
     
     return user_data
+
 
 
 #if __name__ == "__main__":
