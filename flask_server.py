@@ -124,7 +124,7 @@ def matching_page():
         # TODO 
         # 몇 명 추천할 건지 for문으로 추가 
         matching_num = len(matching)
-        user_num = 2
+        user_num = matching_num
 
         matching_idx = random.sample(range(user_num), matching_num)
 
