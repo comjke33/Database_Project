@@ -113,6 +113,9 @@
     }
   </style>
 </head>
+<script>
+  const user_id = "comjke33";
+</script>
 <body>
   <header>
     <h1 class="site-name">영화 취향 매칭 사이트
@@ -121,11 +124,17 @@
     <p class="site-info">당신의 영화 취향에 딱 맞는 친구를 찾아보세요!</p>
   </header>
   <nav>
-    <a href="#recommendations">추천 영화</a>
     <a href="#matching" onclick="location.href='/matching'; return false;">취향 매칭</a>
     <a href="#community" onclick="location.href='/community'; return false;">커뮤니티</a>
-    <a href="#profile" onclick="location.href='/profile'; return false;">내 프로필</a>
+    <a href="#profile" onclick="location.href='/profile'; return false;">
+      <span id="user-id-display"></span> <!-- 동적으로 표시될 부분 -->
+    </a>
   </nav>
+
+  <script>
+    // JavaScript에서 `user_id` 값을 동적으로 HTML에 삽입
+    document.getElementById('user-id-display').textContent = user_id+" 님";
+  </script>
   <div class="container">
     <section id="recommendations" class="section">
       <h2>추천 영화</h2>
@@ -140,8 +149,8 @@
     </section>
     <section id="matching" class="section">
       <h2>취향 매칭</h2>
-      <p>지금 바로 간단한 설문을 통해 영화 취향이 맞는 사람을 찾아보세요!</p>
-      <button class="btn-matching" onclick="alert('매칭 설문이 곧 시작됩니다!')">매칭 시작하기</button>
+      <p>지금 바로 영화 취향이 맞는 사람을 찾아보세요!</p>
+      <button class="btn-matching" onclick="location.href='/matching'; return false;">매칭 시작하기</button>
     </section>
     <section id="communication" class="section">
       <h2>커뮤니티</h2>

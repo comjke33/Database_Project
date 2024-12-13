@@ -19,7 +19,7 @@
         .section {
             width: 90%;
             max-width: 800px;
-            margin: 2rem auto;
+            margin: 1rem auto;
             background: #c8add1;
             padding: 2rem;
             border-radius: 10px;
@@ -27,11 +27,14 @@
         }
         h2 {
             text-align: center;
-            text-shadow: 
-            2px 2px 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             font-weight: bold;
             color: #fff;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            margin-top: 0rem;
+            background-color: #906fa8; /* 원하는 배경색 */
+            padding: 20px 30px; /* 텍스트와 배경 사이의 여백 */
+            border-radius: 20px; /* 둥근 모서리 */
         }
         .card {
             background: #f9f9f9;
@@ -55,18 +58,37 @@
         p {
             line-height: 1.6;
         }
-        .info{
-            background: #f9f9f9;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* 각 카드를 3열로 배치 */
+            gap: 1rem;
+            margin-top: 1rem;
         }
         .content-info {
             color: #6c757d; /* 회색 */
             font-weight: bold;
             font-size: 15px;
+        }
+        .user-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .user-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .user-card p {
+            font-size: 14px;
+            color: #555;
+        }
+        .user-id {
+            margin-top: 0rem;
+            font-weight: bold;
+            font-size: 20px !important;
+            color: #333;
         }
     </style>
 </head>
@@ -81,37 +103,40 @@
         const userMatchingListElement = document.getElementById('user-matching-list');
         const userMatchingBackend = {{ matching_result | tojson }};
 
-
         // 페이지 로드 시 DB에서 받은 영화 목록 동적으로 추가
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('User matching backend data:', userMatchingBackend);
             if (userMatchingBackend.length > 0) {
-                userMatchingBackend.forEach(matchedUser => {
-                    console.log('Adding matched user:', matchedUser);
-                    addToMatchingList(matchedUser[0])
-            });
+                userMatchingBackend.forEach((matchedUser) => 
+                    addToMatchingList(matchedUser[0])  // idx와 matchedUser를 넘김
+                );
             } else {
                 userMatchingListElement.innerHTML = '<p>No matched users in the list.</p>';
             }
         });
 
-
         // 영화 목록에 추가 함수
         function addToMatchingList(matchedUser) {
-            // console.log('Adding movie to list:', movie);
-            const userListItem = document.createElement('li');
-            userListItem.style.display = 'flex'; // Use flexbox for alignment
-            userListItem.style.justifyContent = 'space-between'; // Space out elements
-            userListItem.style.alignItems = 'center'; // Vertically align elements
-            userListItem.style.height = '40px'; // Set a fixed height to prevent resizing
-            
-            userListItem.innerHTML = `
-                <span style="line-height: 40px; font-size: 16px;"><strong>[${matchedUser.user_id} ${matchedUser.user_gender} ${matchedUser.user_age} ${matchedUser.user_email}]</strong></span>
+            const userCard = document.createElement('div');
+            userCard.classList.add('user-card');
+
+            // 유저 카드 클릭 시 이동할 URL 생성
+            const userProfileUrl = `/profile/${matchedUser.user_id}`; // 프로필 페이지로 이동
+
+            userCard.innerHTML = `
+                <p class="user-id">[${matchedUser.user_id}]</p>
+                <p><strong>Gender:</strong> ${matchedUser.user_gender}</p>
+                <p><strong>Age:</strong> ${matchedUser.user_age}</p>
+                <p><strong>Email:</strong> ${matchedUser.user_email}</p>
             `;
-            
-            
-            userMatchingListElement.appendChild(userListItem);
+
+            // 클릭 이벤트 추가
+            userCard.addEventListener('click', () => {
+                window.location.href = userProfileUrl; // 해당 URL로 이동
+            });
+
+            userMatchingListElement.appendChild(userCard);
         }
+
     </script>
 </body>
 </html>
