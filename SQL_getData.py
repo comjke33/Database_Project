@@ -9,13 +9,13 @@ cursor = conn.cursor()
 ##### 로그인 페이지 #####
 
 #새로운 유저 추가(회원가입)
-def signup(uID, password, gender, age, email):
+def signup(uID, password, gender, birthdate, email):
     try:
         #User 테이블
         cursor.execute("""
-        INSERT INTO User (uID, Password, gender, age, email)
+        INSERT INTO User (uID, Password, gender, birthdate, email)
         VALUES (?, ?, ?, ?, ?)
-        """, (uID, password, gender, age, email))
+        """, (uID, password, gender, birthdate, email))
         
         #UserGenreScore 테이블
         cursor.execute("""
@@ -59,7 +59,7 @@ def get_user_info(user_id):
     user_data = []
     try:
         cursor.execute("""
-        SELECT uID, gender, age, email
+        SELECT uID, gender, birthdate, email
         FROM User
         WHERE uID = ?;
         """, (user_id,))
@@ -223,7 +223,7 @@ def press_heart_plus(uID, mID):
             "코미디": 'comedy',
             "스릴러": 'thriller',
             "성인물(에로)": 'ero',
-            "공포": 'horror',
+            "공포(호러)": 'horror',
             "범죄": 'crime',
             "애니메이션": 'animation',
             "어드벤처": 'adventure',
