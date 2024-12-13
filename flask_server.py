@@ -36,6 +36,27 @@ def login():
 # TODO
 # 로그인 실패했을 때 
 
+# 회원가입 페이지
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        password = request.form.get('password')
+        user_age = request.form.get('user_age')
+        user_email = request.form.get('user_email')
+
+        if user_id and password and user_age and user_email:
+            # 회원 추가
+            if SQL_getData.signup(user_id, password, user_age, user_email):
+                print(user_id, "회원가입 완료")
+
+                if (SQL_getData.login(user_id, password)):
+                    session['user_id'] = user_id  # 세션에 user_id 저장
+                    session['password'] = password
+
+                    return redirect('/home')
+    return render_template('signup_page.html')
+
 # 기본 페이지
 @app.route('/home')
 def home_page():
@@ -111,7 +132,6 @@ def matching_page():
         for i in range(0, matching_num):
             selected_item = matching[matching_idx[i]]
             
-            print("===============================",selected_item)
             matching_result.append(SQL_getData.get_user_info(selected_item['user_id'][0]))
 
         return render_template('matching_page.html', matching_result=matching_result[0])

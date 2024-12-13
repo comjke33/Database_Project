@@ -9,7 +9,7 @@ cursor = conn.cursor()
 ##### 로그인 페이지 #####
 
 #새로운 유저 추가(회원가입)
-def add_new_user(uID, password, gender, age, email):
+def signup(uID, password, gender, age, email):
     try:
         #User 테이블
         cursor.execute("""
@@ -24,7 +24,7 @@ def add_new_user(uID, password, gender, age, email):
         """,(uID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
         
         conn.commit()
-        print(f"User '{uID}' 추가")
+        print(f"User '{uID}' 회원가입 완료")
     except sqlite3.IntegrityError as e:
         #중복 User 방지
         print(f"Error  '{uID}': {e}")

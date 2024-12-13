@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Signup</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
             height: 100vh;
             margin: 0;
         }
-        .login-container {
+        .signup-container {
             background: white;
             padding: 20px;
             border-radius: 8px;
@@ -22,36 +22,31 @@
             width: 300px;
             text-align: center;
         }
-        .login-container h1 {
+        .signup-container h1 {
             margin-bottom: 20px;
             color: #333;
         }
         .form-group {
-            display: flex;
-            align-items: center;
             margin-bottom: 15px;
+            text-align: left;
         }
         .form-group label {
             display: block;
-            width: 100px;
             margin-bottom: 5px;
-            margin-right: 10px;
             color: #555;
         }
-        .form-group input {
-            width: calc(100% - 20px);
+        .form-group input, .form-group select {
+            width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
         }
         .button-container {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 1.5rem;
+            margin-top: 20px;
         }
-        .login-btn,
         .signup-btn {
-            width: 40%; /* 동일한 너비 */
+            width: 100%;
             padding: 10px;
             background-color: #007bff;
             color: white;
@@ -59,33 +54,17 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            text-decoration: none; /* 밑줄 제거 */
             transition: background-color 0.2s;
-            box-sizing: border-box; /* 패딩 포함 너비 계산 */
         }
-
-        /* 버튼별 색상 및 스타일 조정 */
-        .signup-btn {
-            background-color: #007bff9d;
-            color: black;
-        }
-
-        /* 호버 효과 */
-        .login-btn:hover,
         .signup-btn:hover {
             background-color: #0056b3;
-            color: white;
-        }
-
-        .btn{
-            display: flex;  align-items: center;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>환영합니다!</h1>
-        <form action="/login" method="POST">
+    <div class="signup-container">
+        <h1>회원가입</h1>
+        <form action="/signup" method="POST">
             <div class="form-group">
                 <label for="user_id">아이디</label>
                 <input type="text" id="user_id" name="user_id" required>
@@ -94,15 +73,31 @@
                 <label for="password">비밀번호</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <div>
-                
+            <div class="form-group">
+                <label for="confirm_password">비밀번호 확인</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div class="form-group">
+                <label for="birthdate">생년월일</label>
+                <input type="date" id="birthdate" name="birthdate" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <select id="gender" name="gender" required>
+                    <option value="">선택하세요</option>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                    <option value="other">기타</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required>
             </div>
             <div class="button-container">
-                <a href="/signup" class="signup-btn">회원가입</a>
-                <button type="submit" class="login-btn">로그인</button>
+                <button type="submit" class="signup-btn">회원가입</button>
             </div>
         </form>
-        
     </div>
 </body>
 </html>
