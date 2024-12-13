@@ -42,19 +42,22 @@ def signup():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
         password = request.form.get('password')
-        user_age = request.form.get('user_age')
-        user_email = request.form.get('user_email')
+        gender = request.form.get('gender')
+        user_birthdate = request.form.get('birthdate')
+        user_email = request.form.get('email')
 
-        if user_id and password and user_age and user_email:
+        
+        if user_id and password and user_birthdate and user_email:
             # 회원 추가
-            if SQL_getData.signup(user_id, password, user_age, user_email):
+            if SQL_getData.signup(user_id, password, gender, user_birthdate, user_email):
                 print(user_id, "회원가입 완료")
 
                 if (SQL_getData.login(user_id, password)):
                     session['user_id'] = user_id  # 세션에 user_id 저장
                     session['password'] = password
 
-                    return redirect('/home')
+                    
+            return redirect('/home')
     return render_template('signup_page.html')
 
 # 기본 페이지
@@ -90,6 +93,7 @@ def profile_page():
     
     print("======================================", user_id)
     user_data = SQL_getData.get_user_info(user_id)
+    print(user_data)
     # TODO
     # 내 영화 감상 리스트 가져오는 SQL
     user_watchedlist = SQL_getData.fetch_user_watched_movies(user_id)
