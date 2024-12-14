@@ -33,9 +33,6 @@ def login():
             return redirect('/home')
     return render_template('login_page.html')
 
-# TODO
-# 로그인 실패했을 때 
-
 # 회원가입 페이지
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -127,14 +124,6 @@ def profile(user_id):
     else:
         return "User not found", 404  # 유저를 찾을 수 없을 경우
 
-
-# 영화 검색 API 엔드포인트
-@app.route('/search', methods=['GET'])
-def search_movie():
-    query = request.args.get('query')
-    data = API_MovieInfo.getMovieInfo(query)
-    return data
-
 # 영화 매칭 시스템
 @app.route('/matching', methods=['GET'])
 def matching_page():
@@ -159,8 +148,14 @@ def matching_page():
 
         return render_template('matching_page.html', matching_result=matching_result)
     
-
 # =====================================================================
+
+# 영화 검색 API 엔드포인트
+@app.route('/search', methods=['GET'])
+def search_movie():
+    query = request.args.get('query')
+    data = API_MovieInfo.getMovieInfo(query)
+    return data
 
 @app.route('/add-watchedlist', methods=['POST'])
 def add_watchedlist():
